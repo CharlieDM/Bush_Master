@@ -14,8 +14,12 @@ extern "C" {
 #define MOD_FUNC_WRITE_SINGLE_REGISTER             	( 0x06 )
 #define MOD_FUNC_WRITE_MULTIPLE_REGISTERS          	( 0x10 )
 
+#define MOD_FUNCTION_CODE		( 0x02 )
+#define MOD_FUNC_HANDLERS_MAX	( 0x03 )
 
 #define MOD_INVALID_DATA		( 0x00 )
+#define MOD_OK					( 0x01 )
+
 
 /* ----------------------- Type definitions ---------------------------------*/
 typedef enum
@@ -27,7 +31,15 @@ typedef enum
     MOD_EX_SLAVE_DEVICE_FAILURE = 0x04,
 } eMODException;
 
-typedef eMODException ( *pxMODFuncHandler ) ( uint8 * pucFrame, uint16 * pusLength );
+typedef enum
+{
+    MOD_INIT = 0x00,
+    MOD_FRAME = 0x01,
+    MOD_EXEC = 0x02,
+    MOD_ERROR = 0x03,
+} eMODState;
+
+typedef eMODException ( *pxMODFuncHandler ) ( uint8 * pucFrame, uint16 pusLength );
 
 typedef struct
 {
