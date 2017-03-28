@@ -9,10 +9,13 @@ extern "C" {
 #include "type_def.h"
 	
 /* ----------------------- Defines ------------------------------------------*/
-#define MOD_FUNC_NONE                          		 (  0 )
-#define MOD_FUNC_READ_MULTIPLE_REGISTER	       		 ( 0x03 )
-#define MOD_FUNC_WRITE_SINGLE_REGISTER             ( 0x06 )
-#define MOD_FUNC_WRITE_MULTIPLE_REGISTERS          ( 0x10 )
+#define MOD_FUNC_NONE                          		( 0x0 )
+#define MOD_FUNC_READ_MULTIPLE_REGISTER	       		( 0x03 )
+#define MOD_FUNC_WRITE_SINGLE_REGISTER             	( 0x06 )
+#define MOD_FUNC_WRITE_MULTIPLE_REGISTERS          	( 0x10 )
+
+
+#define MOD_INVALID_DATA		( 0x00 )
 
 /* ----------------------- Type definitions ---------------------------------*/
 typedef enum

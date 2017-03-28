@@ -15,7 +15,8 @@ static xMODFuncHandler xFuncHandler[] =
 };
 
 static uint8 sg_au8Queue[MOD_SIZE_MAX] = {0};
-static T_QUEUE_INFO sg_tQueue1={sg_au8Queue,0,0,0,0};
+static T_QUEUE_INFO sg_tQueue1={sg_au8Queue,0,0,0,MOD_SIZE_MAX};
+static uint8 ucFrameBuf[MOD_SIZE_MAX] = {0};
 
 static void Receive(uint8 data)
 {
@@ -31,19 +32,19 @@ static uint8 ModFrameReceive()
 		Queue_Pop(&sg_tQueue1,&data);
 		
 		if(data != MOD_ADDRESS_HOST && len == 0 ) continue; 
-		
-		switch(data)
+
+		switch(data && len == 0)
 		{
 			case MOD_FUNC_READ_MULTIPLE_REGISTER:
-				
+				len = 6;
 				break;
 			
 			case MOD_FUNC_WRITE_SINGLE_REGISTER:
-				
+				len = 6;
 				break;
 			
 			case MOD_FUNC_WRITE_MULTIPLE_REGISTERS:
-				
+				len = 6;
 				break;
 			
 			default:				
@@ -51,10 +52,10 @@ static uint8 ModFrameReceive()
 		}
 		
 	}
-	return 0;
+	return len;
 }
 
-static void ModPoll()
+static void ModbusPoll()
 {
 	
 }
