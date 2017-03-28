@@ -1,0 +1,21 @@
+
+#include "core_hal.h"
+#include "hal_uart3.h"
+#include "hal_uart5.h"
+#include "hal_spi.h"
+#include "hal_systick.h"
+
+DeviceStruct Device;
+
+uint8 HAL_Init(void)
+{
+	Hal_Uart5_Init();
+	Hal_Usart3_Init();
+	Hal_Spi_Init();
+	Hal_SystickInit();
+	
+	return SW_OK;
+}
+
+/* end of file */
+
