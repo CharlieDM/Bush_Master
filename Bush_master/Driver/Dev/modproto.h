@@ -19,6 +19,8 @@ extern "C" {
 
 #define MOD_INVALID_DATA		( 0x00 )
 #define MOD_OK					( 0x01 )
+#define MOD_NOT_YET  			( 0x00 )
+
 
 
 /* ----------------------- Type definitions ---------------------------------*/
@@ -46,6 +48,13 @@ typedef struct
     uint8          	 ucFunctionCode;
     pxMODFuncHandler pxHandler;
 } xMODFuncHandler;
+
+typedef struct
+{
+    uint8  ucLen;
+    uint8 *pucBuf;
+} xModCmd;
+
 
 #ifdef __cplusplus
 }
