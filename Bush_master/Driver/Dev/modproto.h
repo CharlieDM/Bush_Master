@@ -35,13 +35,15 @@ typedef enum
 
 typedef enum
 {
-    MOD_INIT = 0x00,
-    MOD_FRAME = 0x01,
-    MOD_EXEC = 0x02,
-    MOD_ERROR = 0x03,
+    MOD_INIT 	= 0x00,
+	MOD_SEND 	= 0x01,
+    MOD_FRAME 	= 0x02,
+    MOD_EXEC 	= 0x03,
+    MOD_ERROR 	= 0x04,
 } eMODState;
 
 typedef eMODException ( *pxMODFuncHandler ) ( uint8 * pucFrame, uint16 pusLength );
+typedef void (*pFunc)(void);
 
 typedef struct
 {
@@ -51,7 +53,7 @@ typedef struct
 
 typedef struct
 {
-    uint8  ucLen;
+    uint8 ucLen;
     uint8 *pucBuf;
 } xModCmd;
 

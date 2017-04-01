@@ -11,5 +11,21 @@
 #define MOD_CMD_NORMAL					( 0x01 )
 #define MOD_CMD_SPEC					( 0x02 )
 
+/* ----------------------- Typedefs ------------------------------------------*/
+typedef struct _Host
+{
+	uint8  ucmodstate;
+	uint8  ucmodcmd;
+	uint8  uctimeout;
+	uint16 ustime;
+	uint8  ucrcmdpos;
+	uint8  ucscmdpos;
+	uint8  ucdevicenum;
+	uint8  ucframelen;
+	uint8  *ucbuf;
+	uint8  ucerror;
+}HostStruct;
+
+
 
 #endif

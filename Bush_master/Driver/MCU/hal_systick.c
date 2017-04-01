@@ -6,7 +6,7 @@
 
 #define Task_Num			(20)
 
-typedef struct __TaskStruct
+typedef struct _TaskStruct
 {
 	uint8 Run;
 	uint8 Timer;
