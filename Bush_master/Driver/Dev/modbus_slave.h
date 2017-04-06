@@ -22,6 +22,13 @@ typedef struct _Slave
 	uint8  ucerror;
 }SlaveStruct;
 
+
+typedef struct _SlaveData
+{
+	void *Data;
+}SlaveDataStruct;
+
 extern SlaveStruct stSlave;
+extern SlaveDataStruct stSlaveData;
 
 #endif

@@ -3,7 +3,6 @@
 #include "modproto.h"
 #include "modfunc_slave.h"
 
-
 eMODException eModSlaveReadRegister( uint8 * pucFrame, uint16 usLength )
 {
 	uint16 usaddr = 0;

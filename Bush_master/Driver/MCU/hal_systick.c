@@ -22,7 +22,7 @@ static TaskStruct TaskComps[Task_Num] = {{0,100,100,Func}};
 static void RegisterSystick(uint8 timer, void(*Func)())
 {
 	
-	CHECK_IF_RET_VOID(TaskPos>19, "Invalid Pos!!\n");
+	CHECK_IF_RET_VOID(TaskPos>Task_Num-1, "Invalid Pos!!\n");
 	
 	TaskComps[TaskPos].Run = 0;
 	TaskComps[TaskPos].Timer = timer;
