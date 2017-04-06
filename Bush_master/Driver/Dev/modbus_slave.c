@@ -18,14 +18,22 @@ static xMODFuncHandler xFuncHandler[] =
 static uint8 sg_au8Queue[MOD_SLAVE_SIZE_MAX] = {0};
 static T_QUEUE_INFO sg_tQueue={sg_au8Queue,0,0,0,MOD_SLAVE_SIZE_MAX};
 static uint8 ucFrameBuf[MOD_SLAVE_SIZE_MAX] = {0};
-static eMODState eEvent = MOD_INIT;
+static uint8 ucSendBuf[MOD_SLAVE_SIZE_MAX] = {0};
 
 static uint16 ucTimes = 0;
 static pFunc pfStateFunc = NULL;
 
-static SlaveStruct stSlave =
+SlaveStruct stSlave =
 {
-
+	MOD_FRAME,
+	0,
+	0,
+	10,
+	0,
+	ucFrameBuf,
+	0,
+	ucSendBuf,
+	MOD_EX_NONE
 }
 
 static void Receive(uint8 data)
@@ -33,7 +41,7 @@ static void Receive(uint8 data)
 	Queue_Push(&sg_tQueue,data);
 }
 
-static void ModbusTimeExpire()
+static void ModSalveTimeExpire()
 {
 	if(ucTimes) 
 	{
@@ -45,7 +53,7 @@ static void ModbusTimeExpire()
 	}
 }
 
-static void ModbusDispath(pFunc func)
+static void ModSlaveDispath(pFunc func)
 {
 	ucTimes = 0;
 	stSlave.uctimeout = 0;
@@ -53,13 +61,13 @@ static void ModbusDispath(pFunc func)
 }
 
 
-static pFunc ModbusRun(void)
+static pFunc ModSlaveRun(void)
 {
 	return pfStateFunc;
 }
 
 
-static void ModFrameReceive()
+static void ModSlaveReceive()
 {
 	uint8 ucdata;
 	uint8 ucpos = 0;
@@ -70,18 +78,18 @@ static void ModFrameReceive()
 		ucTimes = stSlave.ustime;
 	}
 
-	if(stHost.uctimeout)
+	if(stSlave.uctimeout)
 	{
-		ModbusDispath(ModbusError);
+		ModSlaveDispath(ModbusError);
 	}
 	
-	stHost.ucmodstate = MOD_FRAME;
+	stSlave.ucmodstate = MOD_FRAME;
 	if(sg_tQueue.u8Cnt < MOD_SLAVE_SIZE_MIN) return;
 	
 	while( sg_tQueue.u8Cnt > 0 )
 	{
 		Queue_Pop(&sg_tQueue1,&ucdata);		
-		if(data != MOD_ADDRESS_SLAVE && ucpos == 0 ) continue; 	
+		if(ucdata != MOD_ADDRESS_SLAVE && ucpos == 0 ) continue; 	
 	
 		if(ucpos < MOD_SLAVE_SIZE_MAX)
 		{
@@ -93,19 +101,23 @@ static void ModFrameReceive()
 			switch(ucdata)
 			{
 				case MOD_FUNC_READ_MULTIPLE_REGISTER:
-					Queue_Pop(&sg_tQueue1,&ucdata);
-					ucFrameBuf[ucpos++] = ucdata;
-					uclen = ucdata+5;
-					//stHost.ucmodcmd = MOD_FUNC_READ_MULTIPLE_REGISTER;
+					uclen = 8;
 					break;
 				
-				case MOD_FUNC_WRITE_SINGLE_REGISTER:
-					
-					uclen = 6;
+				case MOD_FUNC_WRITE_SINGLE_REGISTER:				
+					uclen = 10;
 					break;
 				
 				case MOD_FUNC_WRITE_MULTIPLE_REGISTERS:
-					uclen = 6;
+					Queue_Pop(&sg_tQueue1,&ucdata);	
+					ucFrameBuf[ucpos++] = ucdata;
+					Queue_Pop(&sg_tQueue1,&ucdata);	
+					ucFrameBuf[ucpos++] = ucdata;
+					Queue_Pop(&sg_tQueue1,&ucdata);	
+					ucFrameBuf[ucpos++] = ucdata;
+					Queue_Pop(&sg_tQueue1,&ucdata);	
+					ucFrameBuf[ucpos++] = ucdata;
+					uclen = ucFrameBuf[4]*256+ucFrameBuf[5];
 					break;
 				
 				default:	
@@ -119,16 +131,16 @@ static void ModFrameReceive()
 
 	if(uclen >= MOD_SLAVE_SIZE_MIN && usMBCRC16(ucFrameBuf,uclen) == 0 )
 	{
-		stSlave.ucframelen = uclen;
-		ModbusDispath(ModbusExec);
+		stSlave.ucrevlen= uclen;
+		ModSlaveDispath(ModSlaveExec);
 	}
 	else
 	{
-		ModbusDispath(ModbusError);
+		ModSlaveDispath(ModSlaveError);
 	}	
 }
 
-static void ModFrameExec()
+static void ModSlaveExec()
 {
 	uint8 ucFunctionCode = 0;
 	eMODException eException;	
@@ -140,36 +152,37 @@ static void ModFrameExec()
 
 	if(stHost.uctimeout)
 	{
-		ModbusDispath(ModbusError);
+		ModSlaveDispath(ModSlaveError);
 	}
 
 	stSlave.ucmodstate = MOD_EXEC;
 	ucFunctionCode = ucFrameBuf[MOD_FUNCTION_CODE];
 	for( i=0; i<MOD_FUNC_HANDLERS_MAX;i++ )
 	{
-		if( xFuncHandler[i].ucFunctionCode == 0 )
+		if( xFuncHandler[i].ucFunctionCode == ucFunctionCode )
         {
-            break;
-        }
-        else if( xFuncHandler[i].ucFunctionCode == ucFunctionCode )
-        {
-            eException = xFuncHandler[i].pxHandler( stSlave.ucbuf, stSlave.ucframelen );
+            eException = xFuncHandler[i].pxHandler( stSlave.ucrevbuf, stSlave.ucrevlen );
             break;
         }
 	}
 	
 	if(eException)
 	{
-		ModbusDispath(ModbusError);
+		ModSlaveDispath(ModSlaveError);
+	}
+	else
+	{
+		ModSlaveDispath(ModSlaveReceive);
 	}
 }
 
-static void ModbusError()
+static void ModSlaveError()
 {
 	static uint8 ucerrortimes = 0;
 	switch( stSlave.ucmodcmd )
 	{
 		case MOD_FRAME:
+			
 			if(ucerrortimes >= 5)
 			{
 				stSlave.ucerro |= 0x01;
@@ -178,6 +191,7 @@ static void ModbusError()
 			break;
 
 		case MOD_EXEC:
+			
 			if(ucerrortimes >= 5)
 			{
 				stSlave.ucerro |= 0x02;
@@ -192,24 +206,23 @@ static void ModbusError()
 }
 
 
-static void ModbusInit(void)
+static void SlaveInit(void)
 {
 	stHost.ucdevicenum = 1;
-	ModbusDispath(ModFrameReceive);
+	ModSlaveDispath(ModSlaveReceive);
+}
+
+static void ModSlavePoll()
+{
+	(*ModSlaveRun())();
 }
 
 
-static void ModbusPoll()
+void ModSlaveInit()
 {
-	(*ModbusRun())();
-}
-
-
-void ModbusSlaveInit()
-{
-	ModbusInit();
+	SlaveInit();
 	
 	Device.Usart3.Register(Receive);
-	Device.Systick.Register(100,ModbusTimeExpire);
-	Device.Systick.Register(100,ModbusPoll);
+	Device.Systick.Register(100,ModSalveTimeExpire);
+	Device.Systick.Register(100,ModSlavePoll);
 }

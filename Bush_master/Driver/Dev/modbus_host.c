@@ -25,7 +25,6 @@ static xModCmd xCmdHanler[] =
 static uint8 sg_au8Queue[MOD_HOST_SIZE_MAX] = {0};
 static T_QUEUE_INFO sg_tQueue={sg_au8Queue,0,0,0,MOD_HOST_SIZE_MAX};
 static uint8 ucFrameBuf[MOD_HOST_SIZE_MAX] = {0};
-static eMODState eEvent = MOD_INIT;
 
 static uint16 ucTimes = 0;
 static pFunc pfStateFunc = NULL;
@@ -48,7 +47,7 @@ static void Receive(uint8 data)
 	Queue_Push(&sg_tQueue,data);
 }
 
-static void ModbusTimeExpire()
+static void ModHostTimeExpire()
 {
 	if(ucTimes) 
 	{
@@ -60,7 +59,7 @@ static void ModbusTimeExpire()
 	}
 }
 
-static void ModbusDispath(pFunc func)
+static void ModHostDispath(pFunc func)
 {
 	ucTimes = 0;
 	stHost.uctimeout = 0;
@@ -68,12 +67,12 @@ static void ModbusDispath(pFunc func)
 }
 
 
-static pFunc ModbusRun(void)
+static pFunc ModHostRun(void)
 {
 	return pfStateFunc;
 }
 
-static void ModbusSendCmd(void)
+static void ModHostSendCmd(void)
 {
 	uint8 ucRCmd = stHost.ucrcmdpos;
 	if(stHost.ucscmdpos > 0)
@@ -87,10 +86,10 @@ static void ModbusSendCmd(void)
 	}
 	
 	stHost.ucmodstate = MOD_SEND;
-	ModbusDispath(ModFrameReceive);
+	ModHostDispath(ModHostReceive);
 }
 
-static void ModFrameReceive(void)
+static void ModHostReceive(void)
 {
 	uint8 ucdata;
 	uint8 ucpos = 0;
@@ -103,7 +102,7 @@ static void ModFrameReceive(void)
 
 	if(stHost.uctimeout)
 	{
-		ModbusDispath(ModbusError);
+		ModHostDispath(ModHostError);
 	}
 	
 	stHost.ucmodstate = MOD_FRAME;
@@ -151,16 +150,16 @@ static void ModFrameReceive(void)
 	if(uclen >= MOD_HOST_SIZE_MIN && usMBCRC16(ucFrameBuf,uclen) == 0 )
 	{
 		stHost.ucframelen = uclen;
-		ModbusDispath(ModbusExec);
+		ModHostDispath(ModHostExec);
 	}
 	else
 	{
-		ModbusDispath(ModbusError);
+		ModHostDispath(ModHostError);
 	}
 	
 }
 
-static void ModbusExec()
+static void ModHostExec()
 {
 	uint8 ucFunctionCode = 0;
 	eMODException eException;	
@@ -172,18 +171,14 @@ static void ModbusExec()
 
 	if(stHost.uctimeout)
 	{
-		ModbusDispath(ModbusError);
+		ModHostDispath(ModHostError);
 	}
 
 	stHost.ucmodstate = MOD_EXEC;
 	ucFunctionCode = ucFrameBuf[MOD_FUNCTION_CODE];
 	for( i=0; i<MOD_FUNC_HANDLERS_MAX;i++ )
 	{
-		if( xFuncHandler[i].ucFunctionCode == 0 )
-        {
-            break;
-        }
-        else if( xFuncHandler[i].ucFunctionCode == ucFunctionCode )
+		if( xFuncHandler[i].ucFunctionCode == ucFunctionCode )
         {
             eException = xFuncHandler[i].pxHandler( stHost.ucbuf, stHost.ucframelen );
             break;
@@ -199,15 +194,15 @@ static void ModbusExec()
 		{
 			stHost.ucrcmdpos++;
 		}
-		ModbusDispath(ModbusSendCmd);
+		ModHostDispath(ModbusSendCmd);
 	}
 	else
 	{
-		ModbusDispath(ModbusError);
+		ModHostDispath(ModHostError);
 	}
 }
 
-static void ModbusError()
+static void ModHostError()
 {
 	static uint8 ucerrortimes = 0;
 	switch( stHost.ucmodcmd )
@@ -234,22 +229,22 @@ static void ModbusError()
 	ucerrortimes++;
 }
 
-static void ModbusInit(void)
+static void HostInit(void)
 {
 	stHost.ucdevicenum = 1;
-	ModbusDispath(ModbusSendCmd);
+	ModHostDispath(ModHostSendCmd);
 }
 
-static void ModbusPoll()
+static void ModHostPoll()
 {
-	(*ModbusRun())();	
+	(*ModHostRun())();	
 }
 
-void ModbusHostInit()
+void ModHostInit()
 {
-	ModbusInit();
+	HostInit();
 	
 	Device.Usart3.Register(Receive);
-	Device.Systick.Register(100,ModbusTimeExpire);
-	Device.Systick.Register(100,ModbusPoll);
+	Device.Systick.Register(100,ModHostTimeExpire);
+	Device.Systick.Register(100,ModHostPoll);
 }
