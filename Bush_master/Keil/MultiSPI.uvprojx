@@ -525,16 +525,6 @@
               <FilePath>..\Driver\Dev\modproto.h</FilePath>
             </File>
             <File>
-              <FileName>modfunc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Driver\Dev\modfunc.c</FilePath>
-            </File>
-            <File>
-              <FileName>modfunc.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Driver\Dev\modfunc.h</FilePath>
-            </File>
-            <File>
               <FileName>modbus_host.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Driver\Dev\modbus_host.c</FilePath>
@@ -543,6 +533,21 @@
               <FileName>modbus_host.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Driver\Dev\modbus_host.h</FilePath>
+            </File>
+            <File>
+              <FileName>modbus_slave.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Driver\Dev\modbus_slave.c</FilePath>
+            </File>
+            <File>
+              <FileName>modfunc_host.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Driver\Dev\modfunc_host.c</FilePath>
+            </File>
+            <File>
+              <FileName>modfunc_slave.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Driver\Dev\modfunc_slave.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -520,29 +520,29 @@
           <GroupName>Driver.Dev</GroupName>
           <Files>
             <File>
-              <FileName>modbus.c</FileName>
+              <FileName>gui.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Driver\Dev\modbus.c</FilePath>
+              <FilePath>..\Driver\Dev\gui.c</FilePath>
             </File>
             <File>
-              <FileName>modbus.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Driver\Dev\modbus.h</FilePath>
-            </File>
-            <File>
-              <FileName>modproto.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Driver\Dev\modproto.h</FilePath>
-            </File>
-            <File>
-              <FileName>modfunc.c</FileName>
+              <FileName>modbus_host.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Driver\Dev\modfunc.c</FilePath>
+              <FilePath>..\Driver\Dev\modbus_host.c</FilePath>
             </File>
             <File>
-              <FileName>modfunc.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Driver\Dev\modfunc.h</FilePath>
+              <FileName>modbus_slave.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Driver\Dev\modbus_slave.c</FilePath>
+            </File>
+            <File>
+              <FileName>modfunc_host.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Driver\Dev\modfunc_host.c</FilePath>
+            </File>
+            <File>
+              <FileName>modfunc_slave.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Driver\Dev\modfunc_slave.c</FilePath>
             </File>
           </Files>
         </Group>
