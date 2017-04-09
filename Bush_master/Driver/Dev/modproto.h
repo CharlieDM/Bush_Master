@@ -54,7 +54,7 @@ typedef struct
 typedef struct
 {
     uint8 ucLen;
-    uint8 *pucBuf;
+    uint8 pcBuf[10];
 } xModCmd;
 
 

@@ -14,6 +14,7 @@
 /* ----------------------- Typedefs ------------------------------------------*/
 typedef struct _Host
 {
+	uint8  ucaddr;
 	uint8  ucmodstate;
 	uint8  ucmodcmd;
 	uint8  uctimeout;
@@ -23,9 +24,11 @@ typedef struct _Host
 	uint8  ucdevicenum;
 	uint8  ucframelen;
 	uint8  *ucbuf;
+	uint8  ucsendlen;
+	uint8  *ucSendBuf;
 	uint8  ucerror;
-}HostStruct;
+}HostStruct; 
 
-
+extern HostStruct stHost;
 
 #endif

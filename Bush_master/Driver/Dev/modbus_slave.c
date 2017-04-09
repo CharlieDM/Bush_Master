@@ -7,6 +7,9 @@
 #include "queue.h"
 #include "crc.h"
 
+static void ModSlaveError(void);
+static void ModSlaveReceive(void);
+static void ModSlaveExec(void);
 
 static xMODFuncHandler xFuncHandler[] =
 {
@@ -33,8 +36,10 @@ SlaveStruct stSlave =
 	ucFrameBuf,
 	0,
 	ucSendBuf,
-	MOD_EX_NONE
-}
+	MOD_EX_NONE,
+};
+
+SlaveDataStruct stSlaveData;
 
 static void Receive(uint8 data)
 {
@@ -80,7 +85,7 @@ static void ModSlaveReceive()
 
 	if(stSlave.uctimeout)
 	{
-		ModSlaveDispath(ModbusError);
+		ModSlaveDispath(ModSlaveError);
 	}
 	
 	stSlave.ucmodstate = MOD_FRAME;
@@ -88,7 +93,7 @@ static void ModSlaveReceive()
 	
 	while( sg_tQueue.u8Cnt > 0 )
 	{
-		Queue_Pop(&sg_tQueue1,&ucdata);		
+		Queue_Pop(&sg_tQueue,&ucdata);		
 		if(ucdata != MOD_ADDRESS_SLAVE && ucpos == 0 ) continue; 	
 	
 		if(ucpos < MOD_SLAVE_SIZE_MAX)
@@ -109,13 +114,13 @@ static void ModSlaveReceive()
 					break;
 				
 				case MOD_FUNC_WRITE_MULTIPLE_REGISTERS:
-					Queue_Pop(&sg_tQueue1,&ucdata);	
+					Queue_Pop(&sg_tQueue,&ucdata);	
 					ucFrameBuf[ucpos++] = ucdata;
-					Queue_Pop(&sg_tQueue1,&ucdata);	
+					Queue_Pop(&sg_tQueue,&ucdata);	
 					ucFrameBuf[ucpos++] = ucdata;
-					Queue_Pop(&sg_tQueue1,&ucdata);	
+					Queue_Pop(&sg_tQueue,&ucdata);	
 					ucFrameBuf[ucpos++] = ucdata;
-					Queue_Pop(&sg_tQueue1,&ucdata);	
+					Queue_Pop(&sg_tQueue,&ucdata);	
 					ucFrameBuf[ucpos++] = ucdata;
 					uclen = ucFrameBuf[4]*256+ucFrameBuf[5];
 					break;
@@ -142,6 +147,7 @@ static void ModSlaveReceive()
 
 static void ModSlaveExec()
 {
+	uint8 i =0;
 	uint8 ucFunctionCode = 0;
 	eMODException eException;	
 
@@ -150,7 +156,7 @@ static void ModSlaveExec()
 		ucTimes = stSlave.ustime;
 	}
 
-	if(stHost.uctimeout)
+	if(stSlave.uctimeout)
 	{
 		ModSlaveDispath(ModSlaveError);
 	}
@@ -185,7 +191,7 @@ static void ModSlaveError()
 			
 			if(ucerrortimes >= 5)
 			{
-				stSlave.ucerro |= 0x01;
+				stSlave.ucerror |= 0x01;
 				ucerrortimes = 0;
 			}
 			break;
@@ -194,7 +200,7 @@ static void ModSlaveError()
 			
 			if(ucerrortimes >= 5)
 			{
-				stSlave.ucerro |= 0x02;
+				stSlave.ucerror |= 0x02;
 				ucerrortimes = 0;
 			}
 			break;
@@ -208,15 +214,16 @@ static void ModSlaveError()
 
 static void SlaveInit(void)
 {
-	stHost.ucdevicenum = 1;
+
 	ModSlaveDispath(ModSlaveReceive);
+
 }
 
 static void ModSlavePoll()
 {
 	(*ModSlaveRun())();
+	
 }
-
 
 void ModSlaveInit()
 {
@@ -226,3 +233,4 @@ void ModSlaveInit()
 	Device.Systick.Register(100,ModSalveTimeExpire);
 	Device.Systick.Register(100,ModSlavePoll);
 }
+

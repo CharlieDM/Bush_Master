@@ -1,6 +1,8 @@
 #ifndef __MODBUS_SLAVE_H
 #define __MODBUS_SLAVE_H
 
+#include "type_def.h"
+
 /* ----------------------- Defines ------------------------------------------*/
 #define MOD_ADDRESS_SLAVE         		( 0xC9 )    
 #define MOD_SLAVE_ADDRESS_MIN          	( 1 )    
@@ -18,7 +20,7 @@ typedef struct _Slave
 	uint8  ucrevlen;
 	uint8  *ucrevbuf;
 	uint8  ucsendlen;
-	uint8  ucSendBuf;
+	uint8  *ucSendBuf;
 	uint8  ucerror;
 }SlaveStruct;
 

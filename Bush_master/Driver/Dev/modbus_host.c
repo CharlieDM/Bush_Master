@@ -7,7 +7,13 @@
 #include "queue.h"
 #include "crc.h"
 
+/* ----------------------- Static Function ------------------------------------------*/
+static void ModHostSendCmd(void);
+static void ModHostReceive(void);
+static void ModHostExec(void);
+static void ModHostError(void);
 
+/* ----------------------- Static Var ------------------------------------------*/
 static xMODFuncHandler xFuncHandler[] =
 {
 	{MOD_FUNC_READ_MULTIPLE_REGISTER,eModHostReadRegister},
@@ -15,39 +21,51 @@ static xMODFuncHandler xFuncHandler[] =
 	{MOD_FUNC_WRITE_MULTIPLE_REGISTERS,eModHostWriteMultiRegister}
 };
 
-
 static xModCmd xCmdHanler[] =
 {
-	{0x07,{0x01,0x03,0x04,0x00,0x00,0x11,0x22}},
-	{0x07,{0x02,0x03,0x04,0x00,0x00,0x11,0x22}},
+	{0x08,{0x01, 0x03, 0x00, 0x00, 0x00, 0x2C, 0x44, 0x17 }}
+	//{0x07,{0x02,0x03,0x04,0x00,0x00,0x11,0x22}},
 };
 
 static uint8 sg_au8Queue[MOD_HOST_SIZE_MAX] = {0};
 static T_QUEUE_INFO sg_tQueue={sg_au8Queue,0,0,0,MOD_HOST_SIZE_MAX};
 static uint8 ucFrameBuf[MOD_HOST_SIZE_MAX] = {0};
+static uint8 ucSnedeBuf[MOD_HOST_SIZE_MAX] = {0};
 
 static uint16 ucTimes = 0;
 static pFunc pfStateFunc = NULL;
-static HostStruct stHost =
+HostStruct stHost =
 {
+	0x00,									//slave address
 	MOD_INIT,								//modbus state
 	MOD_FUNC_READ_MULTIPLE_REGISTER,		//cmd type
 	10,										//expire  time
 	0,										//time out state
 	0,										//read cmd pos
 	0,										//set cmd pos
-	0										//device numbers
+	0,										//device numbers
 	0,										//frame len
 	ucFrameBuf,								//frame buf
 	0,
+	ucSnedeBuf,
+	0,
 };
+
+/******************************************************************************
+* Name       : void Receive(uint8 data)
+* Function   : Receive the data
+******************************************************************************/
 
 static void Receive(uint8 data)
 {
 	Queue_Push(&sg_tQueue,data);
 }
 
-static void ModHostTimeExpire()
+/******************************************************************************
+* Name       : void ModHostTimeExpire(void)
+* Function   : host Time expire
+******************************************************************************/
+static void ModHostTimeExpire(void)
 {
 	if(ucTimes) 
 	{
@@ -59,6 +77,10 @@ static void ModHostTimeExpire()
 	}
 }
 
+/******************************************************************************
+* Name       : void ModHostDispath(pFunc func)
+* Function   : State Transfrom
+******************************************************************************/
 static void ModHostDispath(pFunc func)
 {
 	ucTimes = 0;
@@ -66,12 +88,19 @@ static void ModHostDispath(pFunc func)
 	pfStateFunc = func;
 }
 
-
+/******************************************************************************
+* Name       : void ModHostRun(void)
+* Function   : return a function point
+******************************************************************************/
 static pFunc ModHostRun(void)
 {
 	return pfStateFunc;
 }
 
+/******************************************************************************
+* Name       : void ModHostSendCmd(void)
+* Function   : Send the CMD
+******************************************************************************/
 static void ModHostSendCmd(void)
 {
 	uint8 ucRCmd = stHost.ucrcmdpos;
@@ -81,14 +110,19 @@ static void ModHostSendCmd(void)
 	}
 	else
 	{
-		Device.Usart3.Send(xCmdHanler[ucRCmd].pucBuf,xCmdHanler[ucRCmd].ucLen);
+		Device.Usart3.Send(xCmdHanler[ucRCmd].pcBuf,xCmdHanler[ucRCmd].ucLen);
 		stHost.ucmodcmd = MOD_FUNC_READ_MULTIPLE_REGISTER;
+		stHost.ucaddr = xCmdHanler[ucRCmd].pcBuf[0];
 	}
 	
 	stHost.ucmodstate = MOD_SEND;
 	ModHostDispath(ModHostReceive);
 }
 
+/******************************************************************************
+* Name       : void ModHostReceive(void)
+* Function   : Check a Frame data
+******************************************************************************/
 static void ModHostReceive(void)
 {
 	uint8 ucdata;
@@ -110,8 +144,8 @@ static void ModHostReceive(void)
 	
 	while( sg_tQueue.u8Cnt > 0 )
 	{
-		Queue_Pop(&sg_tQueue1,&ucdata);		
-		if(data != MOD_ADDRESS_HOST && ucpos == 0 ) continue; 	
+		Queue_Pop(&sg_tQueue,&ucdata);		
+		if(ucdata != stHost.ucaddr && ucpos == 0 ) continue; 	
 	
 		if(ucpos < MOD_HOST_SIZE_MAX)
 		{
@@ -123,19 +157,23 @@ static void ModHostReceive(void)
 			switch(ucdata)
 			{
 				case MOD_FUNC_READ_MULTIPLE_REGISTER:
-					Queue_Pop(&sg_tQueue1,&ucdata);
-					ucFrameBuf[ucpos++] = ucdata;
-					uclen = ucdata+5;
-					//stHost.ucmodcmd = MOD_FUNC_READ_MULTIPLE_REGISTER;
+					uclen = 8;
 					break;
 				
 				case MOD_FUNC_WRITE_SINGLE_REGISTER:
-					
-					uclen = 6;
+					uclen = 10;
 					break;
 				
 				case MOD_FUNC_WRITE_MULTIPLE_REGISTERS:
-					uclen = 6;
+					Queue_Pop(&sg_tQueue,&ucdata);	
+					ucFrameBuf[ucpos++] = ucdata;
+					Queue_Pop(&sg_tQueue,&ucdata);	
+					ucFrameBuf[ucpos++] = ucdata;
+					Queue_Pop(&sg_tQueue,&ucdata);	
+					ucFrameBuf[ucpos++] = ucdata;
+					Queue_Pop(&sg_tQueue,&ucdata);	
+					ucFrameBuf[ucpos++] = ucdata;
+					uclen = ucFrameBuf[4]*256+ucFrameBuf[5];
 					break;
 				
 				default:	
@@ -159,8 +197,13 @@ static void ModHostReceive(void)
 	
 }
 
-static void ModHostExec()
+/******************************************************************************
+* Name       : void ModHostExec(void)
+* Function   : Host Receive a frame and exec function
+******************************************************************************/
+static void ModHostExec(void)
 {
+	uint8 i = 0;
 	uint8 ucFunctionCode = 0;
 	eMODException eException;	
 
@@ -184,6 +227,7 @@ static void ModHostExec()
             break;
         }
 	}
+	
 	if(!eException)
 	{
 		if(stHost.ucscmdpos > 0)
@@ -194,7 +238,7 @@ static void ModHostExec()
 		{
 			stHost.ucrcmdpos++;
 		}
-		ModHostDispath(ModbusSendCmd);
+		ModHostDispath(ModHostSendCmd);
 	}
 	else
 	{
@@ -202,7 +246,11 @@ static void ModHostExec()
 	}
 }
 
-static void ModHostError()
+/******************************************************************************
+* Name       : void ModHostError(void)
+* Function   : Host Error Deal
+******************************************************************************/
+static void ModHostError(void)
 {
 	static uint8 ucerrortimes = 0;
 	switch( stHost.ucmodcmd )
@@ -210,7 +258,7 @@ static void ModHostError()
 		case MOD_FRAME:
 			if(ucerrortimes >= 5)
 			{
-				stHost.ucerro |= 0x01;
+				stHost.ucerror |= 0x01;
 				ucerrortimes = 0;
 			}
 			break;
@@ -218,7 +266,7 @@ static void ModHostError()
 		case MOD_EXEC:
 			if(ucerrortimes >= 5)
 			{
-				stHost.ucerro |= 0x02;
+				stHost.ucerror |= 0x02;
 				ucerrortimes = 0;
 			}
 			break;
@@ -226,21 +274,34 @@ static void ModHostError()
 		default:
 			break;
 	}
+	ModHostDispath(ModHostSendCmd);
 	ucerrortimes++;
 }
 
+/******************************************************************************
+* Name       : void HostInit(void)
+* Function   : Host Data&State Init
+******************************************************************************/
 static void HostInit(void)
 {
 	stHost.ucdevicenum = 1;
 	ModHostDispath(ModHostSendCmd);
 }
 
-static void ModHostPoll()
+/******************************************************************************
+* Name       : void ModHostPoll()
+* Function   : Host Poll
+******************************************************************************/
+static void ModHostPoll(void)
 {
 	(*ModHostRun())();	
 }
 
-void ModHostInit()
+/******************************************************************************
+* Name       : void ModHostInit()
+* Function   : init ModHost
+******************************************************************************/
+void ModHostInit(void)
 {
 	HostInit();
 	
@@ -248,3 +309,4 @@ void ModHostInit()
 	Device.Systick.Register(100,ModHostTimeExpire);
 	Device.Systick.Register(100,ModHostPoll);
 }
+

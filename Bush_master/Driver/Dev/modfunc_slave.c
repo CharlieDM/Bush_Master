@@ -2,6 +2,7 @@
 #include "core_hal.h"
 #include "modproto.h"
 #include "modfunc_slave.h"
+#include "modbus_slave.h"
 
 eMODException eModSlaveReadRegister( uint8 * pucFrame, uint16 usLength )
 {
