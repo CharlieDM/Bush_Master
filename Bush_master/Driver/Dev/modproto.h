@@ -14,7 +14,7 @@ extern "C" {
 #define MOD_FUNC_WRITE_SINGLE_REGISTER             	( 0x06 )
 #define MOD_FUNC_WRITE_MULTIPLE_REGISTERS          	( 0x10 )
 
-#define MOD_FUNCTION_CODE		( 0x02 )
+#define MOD_FUNCTION_CODE		( 0x01 )
 #define MOD_FUNC_HANDLERS_MAX	( 0x03 )
 
 #define MOD_INVALID_DATA		( 0x00 )

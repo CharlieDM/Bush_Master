@@ -3,14 +3,23 @@
 
 /* ----------------------- Defines ------------------------------------------*/
 #define GUI_ADDRESS					( 0xF0 )    
-#define GUI_SIZE_MAX			 	( 100 )
+#define GUI_SIZE_MAX			 	( 250 )
 #define GUI_SIZE_MIN             	( 8 )
+#define GUI_FUNC_HANDLERS_MAX		( 3 )
 
 #define GUI_READ_MULTIPLE_REGISTER	       		( 0x03 )
 #define GUI_WRITE_SINGLE_REGISTER             	( 0x06 )
 #define GUI_WRITE_MULTIPLE_REGISTERS          	( 0x10 )
 
 /* ----------------------- Typedefs ------------------------------------------*/
+typedef enum
+{
+    GUI_INIT 	= 0x00,
+    GUI_FRAME 	= 0x01,
+    GUI_EXEC 	= 0x02,
+    GUI_ERROR 	= 0x03,
+} eGUIState;
+
 typedef struct _Gui
 {
 	uint8  ucstate;
@@ -23,6 +32,7 @@ typedef struct _Gui
 	uint8  ucerror;
 }GuiStruct; 
 
+/* ----------------------- Globel Var ------------------------------------------*/
 extern GuiStruct stGui;
 
 #endif

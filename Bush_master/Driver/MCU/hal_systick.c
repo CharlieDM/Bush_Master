@@ -16,32 +16,33 @@ typedef struct _TaskStruct
 
 void Func(){};
 
-static uint8 TaskPos = 0;	
-static TaskStruct TaskComps[Task_Num] = {{0,100,100,Func}};
+static uint8 ucTaskPos = 0;	
+static TaskStruct stTaskComps[Task_Num] = {{0,100,100,Func}};
 
 static void RegisterSystick(uint8 timer, void(*Func)())
 {
 	
-	CHECK_IF_RET_VOID(TaskPos>Task_Num-1, "Invalid Pos!!\n");
+	CHECK_IF_RET_VOID(ucTaskPos>Task_Num-1, "Invalid Pos!!\n");
 	
-	TaskComps[TaskPos].Run = 0;
-	TaskComps[TaskPos].Timer = timer;
-	TaskComps[TaskPos].LvTimer = timer;
-	TaskComps[TaskPos].FuncHander = Func;
+	stTaskComps[ucTaskPos].Run = 0;
+	stTaskComps[ucTaskPos].Timer = timer;
+	stTaskComps[ucTaskPos].LvTimer = timer;
+	stTaskComps[ucTaskPos].FuncHander = Func;
+	ucTaskPos++;
 }
 
-static void TaskCheck(void)
+static void TaskUpdate(void)
 {
     uint8 i;
-    for (i=0; i<TaskPos; i++)          
+    for (i=0; i<ucTaskPos; i++)          
     {
-         if (TaskComps[i].Timer)          
+         if (stTaskComps[i].Timer)          
         {
-            TaskComps[i].Timer--;          
-            if (TaskComps[i].Timer == 0)        
+            stTaskComps[i].Timer--;          
+            if (stTaskComps[i].Timer == 0)        
             {
-                 TaskComps[i].Timer = TaskComps[i].LvTimer;       
-                 TaskComps[i].Run = 1;           
+                 stTaskComps[i].Timer = TaskComps[i].LvTimer;       
+                 stTaskComps[i].Run = 1;           
             }
         }
    }
@@ -50,19 +51,19 @@ static void TaskCheck(void)
 static void TaskProcess(void)
 {
     uint8 i;
-    for (i=0; i<TaskPos; i++)            
+    for (i=0; i<ucTaskPos; i++)            
     {
-         if (TaskComps[i].Run)            
+         if (stTaskComps[i].Run)            
         {
-             TaskComps[i].FuncHander();         
-             TaskComps[i].Run = 0;           
+             stTaskComps[i].FuncHander();         
+             stTaskComps[i].Run = 0;           
         }
     }   
 }
 
 void SysTick_ISR(void)
 {
-	TaskCheck();
+	TaskUpdate();
 }
 
 void Hal_SystickInit(void)
