@@ -91,8 +91,7 @@ uint8 Queue_Push(T_QUEUE_INFO *ptQueueInfo, uint8 pu8Data)
 {
     /* If the pointer of queue information is invalid */
     CHECK_IF_RET_ST((NULL == ptQueueInfo)\
-                     || (NULL == ptQueueInfo->pu8Addr)\
-                     || (NULL == pu8Data),\
+                     || (NULL == ptQueueInfo->pu8Addr),\
                      "Invalid pointer of queue information or data!!\n");
     
   
@@ -114,14 +113,13 @@ uint8 Queue_Pop(T_QUEUE_INFO* ptQueueInfo, uint8 *pu8Data)
 {
     /* If the pointer of queue information is invalid */
     CHECK_IF_RET_ST((NULL == ptQueueInfo)\
-                     || (NULL == ptQueueInfo->pu8Addr)
-                     || (NULL == pu8Data),\
+                     || (NULL == ptQueueInfo->pu8Addr),\
                      "Invalid pointer of queue information or data!!\n");
         
     /* If the used count is 0 */
     CHECK_IF_RET_ST((0 == ptQueueInfo->u8Cnt), "The queue is empty!!\n");
 
-		*pu8Data = *QUEUE_FIRST_USED(ptQueueInfo);
+	*pu8Data = *QUEUE_FIRST_USED(ptQueueInfo);
     ptQueueInfo->u8Begin = (ptQueueInfo->u8Begin + 1) % ptQueueInfo->u8Len;  /* Update the begin pointer */
     ptQueueInfo->u8Cnt--;                                               /* Update the used count    */
     
