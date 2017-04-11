@@ -21,6 +21,9 @@ uint8 OS_Init(PF_POLL pfPoll)
     /* Init HAL */
     HAL_Init();
 
+	/* Init Data */
+	AppDataInit();
+	
     /* Init event mechanism */
     Event_Init();
     

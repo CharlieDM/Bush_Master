@@ -26,12 +26,10 @@ static xModCmd xCmdHanler[] =
 	{0x08,{0x01, 0x03, 0x00, 0x00, 0x00, 0x2C, 0x44, 0x17 }}
 	//{0x07,{0x02,0x03,0x04,0x00,0x00,0x11,0x22}},
 };
-
 static uint8 sg_au8Queue[MOD_HOST_SIZE_MAX] = {0};
 static T_QUEUE_INFO sg_tQueue={sg_au8Queue,0,0,0,MOD_HOST_SIZE_MAX};
 static uint8 ucFrameBuf[MOD_HOST_SIZE_MAX] = {0};
 static uint8 ucSnedeBuf[MOD_HOST_SIZE_MAX] = {0};
-
 static uint16 ucTimes = 0;
 static pFunc pfStateFunc = NULL;
 HostStruct stHost =
@@ -55,7 +53,6 @@ HostStruct stHost =
 * Name       : void Receive(uint8 data)
 * Function   : Receive the data
 ******************************************************************************/
-
 static void Receive(uint8 data)
 {
 	Queue_Push(&sg_tQueue,data);

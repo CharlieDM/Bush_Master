@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-void Tasks_Init();
+void AppDataInit(void);
 
 #ifdef __cplusplus
 }

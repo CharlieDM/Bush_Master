@@ -3,12 +3,13 @@
 #include "modproto.h"
 #include "modfunc_host.h"
 #include "modbus_host.h"
+#include "data.h"
 
 static struct 
 {
-	void *Sensor;
-	void *Control;
-}HostDataStruct;
+	void *pvSensor;
+	void *pvControl;
+}HostData;
 
 /******************************************************************************
 * Name       : void HostFuncInit(void)
@@ -16,7 +17,7 @@ static struct
 ******************************************************************************/
 void HostFuncInit(void)
 {
-	
+	HostData.pvSensor = Data.stSensor;
 }
 
 /******************************************************************************
