@@ -15,7 +15,9 @@ typedef unsigned int          uint32;      /* Type definition for 32-bit unsigne
 typedef signed char           int8;        /* Type definition for 8-bit signed char         */
 typedef signed short int      int16;       /* Type definition for 16-bit signed short int   */
 typedef signed int            int32;       /* Type definition for 32-bit signed int         */
-	
+
+typedef uint8 (*PF_TASK_PROCESS)(uint8 u8Evt, void *pPara);
+
 #define NULL              (0)         /* Value for NULL pointer */
 #define SW_OK             (0)         /* Return: Successful */
 #define SW_ERR            (0xFF)      /* Return: Failed     */
