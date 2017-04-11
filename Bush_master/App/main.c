@@ -1,10 +1,9 @@
 
 #include "core_hal.h"
+#include "core_os.h"
 
 int main(void)
 {   
-	HAL_Init();
-	
-	
-	
+	Os_Init(NULL);
+	OS_Run();	
 }
