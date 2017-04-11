@@ -1,13 +1,3 @@
-/******************************************************************************
-* File       : MOE_HAL.c
-* Function   : Hardware Abstract Layer.
-* description: To be done.
-* Version    : V1.00
-* Author     : Ian
-* Date       : 4th Jul 2016
-* History    :  No.  When           Who           What
-*               1    04/Jul/2016    Ian           Create
-******************************************************************************/
 
 #ifndef _CORE_HAL_H_
 #define _CORE_HAL_H_
