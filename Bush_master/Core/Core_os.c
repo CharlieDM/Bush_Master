@@ -46,21 +46,24 @@ uint8 OS_Init(PF_POLL pfPoll)
 ******************************************************************************/
 void OS_Run(void)
 {
-    while(1)                             /* The main loop                */
+    while(1)                             
     {
-        if (sg_pfPoll)
+    	/* if have the Event, then run the Event Function  */
+        if(sg_ptEvt = Event_Get())    
         {
-            sg_pfPoll();                 /* Do polling process if needed */
-        }
+            cg_apfTaskFn[sg_ptEvt->u8Task - 1](sg_ptEvt->u8Evt, sg_ptEvt->pPara);  
+            sg_ptEvt->u8Task = TASK_NO_TASK;                      
+            sg_ptEvt = &sg_tEvt;                                    
+         }
 
-        if(sg_ptEvt = Event_Get())   /* Check events                 */
-        {
-            cg_apfTaskFn[sg_ptEvt->u8Task - 1](sg_ptEvt->u8Evt, sg_ptEvt->pPara); /* Call the task process function */
-            sg_ptEvt->u8Task = TASK_NO_TASK;                     /* Finish task processing and cancel active task mark */
-            sg_ptEvt = &sg_tEvt;                                 /* Point to a none event & task "event struct"        */   
-        }
-		
+		/* run the periodic task */
 		Device.Systick.Run();
+
+		/* aways running task  */
+		if (sg_pfPoll)
+        {
+            sg_pfPoll();                 
+        }
     }
 }
 

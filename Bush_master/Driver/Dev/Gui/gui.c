@@ -216,7 +216,7 @@ static void GuiError(void)
 static void GuiSend(void)
 {
     if(stGui.ucsendlen > 0)
-    {
+    {	
 		Device.Usart1.Send(stGui.ucSendBuf, stGui.ucsendlen);
         stGui.ucsendlen = 0;
     }	

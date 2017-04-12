@@ -20,7 +20,8 @@ extern "C" {
 #define MOD_INVALID_DATA		( 0x00 )
 #define MOD_OK					( 0x01 )
 #define MOD_NOT_YET  			( 0x00 )
-
+#define MOD_NACK_HEAD1			( 0x55 )
+#define MOD_NACK_HEAD2			( 0xAA )
 
 
 /* ----------------------- Type definitions ---------------------------------*/

@@ -17,5 +17,4 @@ eGUIException eGuiReadRegister( uint8 * pucFrame, uint16 usLength );
 eGUIException eGUiWriteSingleRegister( uint8 * pucFrame, uint16 usLength );
 eGUIException eGuiWriteMultiRegister( uint8 * pucFrame, uint16 usLength );
 
-
 #endif

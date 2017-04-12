@@ -4,7 +4,7 @@
 #include "Task.h"
 #include "data.h"
 
-SensorStruct stSensor;
+DataStruct Data = {{0},{0},{0},{0},{0}};
 
 /* Add your task process here */
 const PF_TASK_PROCESS cg_apfTaskFn[] = 

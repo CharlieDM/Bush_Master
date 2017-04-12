@@ -34,7 +34,8 @@ static uint16 ucTimes = 0;
 static pFunc pfStateFunc = NULL;
 HostStruct stHost =
 {
-	0x00,									//slave address
+	0x00,									// read address
+	0x00,									//slave id
 	MOD_INIT,								//modbus state
 	MOD_FUNC_READ_MULTIPLE_REGISTER,		//cmd type
 	10,										//expire  time
@@ -109,7 +110,8 @@ static void ModHostSendCmd(void)
 	{
 		Device.Usart3.Send(xCmdHanler[ucRCmd].pcBuf,xCmdHanler[ucRCmd].ucLen);
 		stHost.ucmodcmd = MOD_FUNC_READ_MULTIPLE_REGISTER;
-		stHost.ucaddr = xCmdHanler[ucRCmd].pcBuf[0];
+		stHost.ucid = xCmdHanler[ucRCmd].pcBuf[0];
+		stHost.usaddr = xCmdHanler[ucRCmd].pcBuf[2]*256 + xCmdHanler[ucRCmd].pcBuf[3];
 	}
 	
 	stHost.ucmodstate = MOD_SEND;

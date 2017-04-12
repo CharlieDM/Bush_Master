@@ -4,6 +4,7 @@
 #include "modfunc_host.h"
 #include "modbus_host.h"
 #include "data.h"
+#include "bittool.h"
 
 static struct 
 {
@@ -27,19 +28,24 @@ void HostFuncInit(void)
 eMODException eModHostReadRegister( uint8 * pucFrame, uint16 usLength )
 {
 	uint8  ucid = 0;
-	uint16 usaddr = 0;
+	uint16 usaddr = stHost.usaddr;
 	uint16 uslen = 0;
+	/* Check data validation */
 	if(usLength < MOD_HOST_SIZE_MIN) return MOD_EX_ILLEGAL_DATA_ADDRESS;
+	if(pucFrame[2] == MOD_NACK_HEAD1 && pucFrame[3] == MOD_NACK_HEAD2) return MOD_EX_ILLEGAL_DATA_ADDRESS;
 
+	/* Deal the data */
 	ucid = pucFrame[0];
-	usaddr = pucFrame[2]*256+pucFrame[3];
-	uslen = pucFrame[4]*256+pucFrame[5];
-
-	stHost.ucSendBuf[0] = pucFrame[0];
-	stHost.ucSendBuf[1] = pucFrame[1];
-	stHost.ucSendBuf[2] = uslen*2;
-
-	stHost.ucsendlen = 3+uslen*2;
+	uslen = pucFrame[2];
+	
+	if( ucid < 100)
+	{
+		U8CpyToU16(((uint16 *)HostData.pvSensor)+ucid*25+usaddr,&pucFrame[3],uslen);
+	}
+	else if(ucid > 100)
+	{
+		
+	}
 	return MOD_EX_NONE;
 }
 
