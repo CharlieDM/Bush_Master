@@ -1,6 +1,7 @@
 
 #include "core_hal.h"
 #include "Guifunc.h"
+#include "data.h"
 
 static struct 
 {
@@ -35,8 +36,11 @@ eGUIException eGuiReadRegister( uint8 * pucFrame, uint16 usLength )
 
 	switch(usaddr)
 	{
-		case 0x0000;
-			
+		case 0x02BC:
+		case 0x02BD:
+		case 0x02BE:
+		case 0x02BF:
+		case 0x02C0:
 			
 			break;
 
