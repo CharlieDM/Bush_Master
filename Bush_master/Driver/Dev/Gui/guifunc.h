@@ -3,6 +3,15 @@
 
 #include "type_def.h"
 
+
+/* ----------------------- Macro definitions ---------------------------------*/
+
+#define GUI_SENSOR_ONE			( 0x02BC)
+#define GUI_SENSOR_TWO			( 0x02BC)
+#define GUI_SENSOR_THREE		( 0x02BC)
+#define GUI_SENSOR_FOUR			( 0x02BC)
+#define GUI_SENSOR_FIVE			( 0x02BC)
+
 /* ----------------------- Type definitions ---------------------------------*/
 typedef enum
 {

@@ -26,7 +26,15 @@ static uint16 ucTimes = 0;
 static pFunc pfStateFunc = NULL;
 GuiStruct stGui =
 {
-
+	GUI_ADDRESS,
+	GUI_INIT,
+	0,
+	100,
+	0,
+	ucRevBuf,
+	0,
+	ucSendBuf,
+	0,
 };
 
 /******************************************************************************
@@ -215,9 +223,13 @@ static void GuiError(void)
 ******************************************************************************/
 static void GuiSend(void)
 {
+	uint16 usCRC = 0;
     if(stGui.ucsendlen > 0)
     {	
-		Device.Usart1.Send(stGui.ucSendBuf, stGui.ucsendlen);
+    	usCRC = usMBCRC16(stGui.pucsendBuf,stGui.ucsendlen-2);
+        stGui.ucSendBuf[stGui.ucsendlen-2] = usCRC & 0xFF;
+        stGui.ucSendBuf[stGui.ucsendlen-1] = usCRC>>8;
+		Device.Usart1.Send(stGui.pucsendBuf, stGui.ucsendlen);
         stGui.ucsendlen = 0;
     }	
 }

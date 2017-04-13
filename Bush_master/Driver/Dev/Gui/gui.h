@@ -2,12 +2,12 @@
 #define __GUI_H
 
 /* ----------------------- Defines ------------------------------------------*/
-#define GUI_ADDRESS					( 0xF0 )    
+#define GUI_ADDRESS					( 0x01 )    
 #define GUI_SIZE_MAX			 	( 250 )
 #define GUI_SIZE_MIN             	( 8 )
 #define GUI_FUNC_HANDLERS_MAX		( 3 )
 
-#define GUI_READ_MULTIPLE_REGISTER	       		( 0x03 )
+#define GUI_READ_MULTIPLE_REGISTER	       		( 0x04 )
 #define GUI_WRITE_SINGLE_REGISTER             	( 0x06 )
 #define GUI_WRITE_MULTIPLE_REGISTERS          	( 0x10 )
 
@@ -22,6 +22,7 @@ typedef enum
 
 typedef struct _Gui
 {
+	uint8  ucid;
 	uint8  ucstate;
 	uint8  uctimeout;
 	uint16 ustime;
