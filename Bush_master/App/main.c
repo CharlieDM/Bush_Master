@@ -1,9 +1,12 @@
 
-#include "core_hal.h"
-#include "core_os.h"
+#include "Core_os.h"
 
+/* Main Func */
 int main(void)
 {   
+	/* Init OS */
 	Os_Init(NULL);
-	OS_Run();	
+	
+	/* Run OS */
+	Os_Run();	
 }

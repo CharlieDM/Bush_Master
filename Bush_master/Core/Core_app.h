@@ -1,16 +1,10 @@
 
-#ifndef _MOE_APP_H_
-#define _MOE_APP_H_
+#ifndef _CORE_APP_H_
+#define _CORE_APP_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 void AppDataInit(void);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* MOE_APP_H */
 

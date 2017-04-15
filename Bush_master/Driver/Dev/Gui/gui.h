@@ -1,6 +1,8 @@
 #ifndef __GUI_H
 #define __GUI_H
 
+#include "type_def.h"
+
 /* ----------------------- Defines ------------------------------------------*/
 #define GUI_ADDRESS					( 0x01 )    
 #define GUI_SIZE_MAX			 	( 250 )

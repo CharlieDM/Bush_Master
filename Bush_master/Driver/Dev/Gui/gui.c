@@ -1,18 +1,20 @@
 
 #include "core_hal.h"
 #include "gui.h"
+#include "guifunc.h"
 #include "hal_systick.h"
 #include "queue.h"
 #include "crc.h"
+#include "modproto.h"
 
 /* ----------------------- static Function ------------------------------------------*/
-static void GuiTimeExpire();
+static void GuiTimeExpire(void);
 static void GuiError(void);
 static void GuiReceive(void);
 static void GuiExec(void);
 
 /* ----------------------- static var ------------------------------------------*/
-static xMODFuncHandler xFuncHandler[] =
+static xGuiFuncHandler xFuncHandler[] =
 {
 	{GUI_READ_MULTIPLE_REGISTER,eGuiReadRegister},
 	{GUI_WRITE_SINGLE_REGISTER,eGuiWriteSingleRegister},
@@ -93,8 +95,8 @@ static void GuiReceive(void)
 	uint8 ucpos = 0;
 	uint8 uclen = 0;
 	
-	stGui.ucmodstate = GUI_FRAME;
-	if(stGui.u8Cnt < GUI_SIZE_MIN) return;
+	stGui.ucstate = GUI_FRAME;
+	if(stGui.ucrevlen < GUI_SIZE_MIN) return;
 	
 	while( sg_tQueue.u8Cnt > 0 )
 	{
@@ -154,7 +156,7 @@ static void GuiExec(void)
 
 	if(ucTimes == 0)
 	{
-		ucTimes = stSlave.ustime;
+		ucTimes = stGui.ustime;
 	}
 
 	if(stGui.uctimeout)
@@ -162,13 +164,13 @@ static void GuiExec(void)
 		GuiDispath(GuiError);
 	}
 
-	stGui.ucmodstate = GUI_EXEC;
-	ucFunctionCode = ucFrameBuf[MOD_FUNCTION_CODE];
+	stGui.ucstate = GUI_EXEC;
+	ucFunctionCode = ucRevBuf[MOD_FUNCTION_CODE];
 	for( i=0; i<GUI_FUNC_HANDLERS_MAX;i++ )
 	{
 		if( xFuncHandler[i].ucFunctionCode == ucFunctionCode )
         {
-            eException = xFuncHandler[i].pxHandler( stGui.ucrevbuf, stGui.ucrevlen );
+            eException = xFuncHandler[i].pxHandler( stGui.pucrevbuf, stGui.ucrevlen );
             break;
         }
 	}
@@ -190,7 +192,7 @@ static void GuiExec(void)
 static void GuiError(void)
 {
 	static uint8 ucerrortimes = 0;
-	switch( stGui.ucmodstate )
+	switch( stGui.ucstate )
 	{
 		case MOD_FRAME:
 			
@@ -226,10 +228,10 @@ static void GuiSend(void)
 	uint16 usCRC = 0;
     if(stGui.ucsendlen > 0)
     {	
-    	usCRC = usMBCRC16(stGui.pucsendBuf,stGui.ucsendlen-2);
-        stGui.ucSendBuf[stGui.ucsendlen-2] = usCRC & 0xFF;
-        stGui.ucSendBuf[stGui.ucsendlen-1] = usCRC>>8;
-		Device.Usart1.Send(stGui.pucsendBuf, stGui.ucsendlen);
+				usCRC = usMBCRC16(stGui.pucsendBuf,stGui.ucsendlen-2);
+        stGui.pucsendBuf[stGui.ucsendlen-2] = usCRC & 0xFF;
+        stGui.pucsendBuf[stGui.ucsendlen-1] = usCRC>>8;
+				Device.Usart3.Send(stGui.pucsendBuf, stGui.ucsendlen);
         stGui.ucsendlen = 0;
     }	
 }
@@ -248,9 +250,9 @@ static void GuiPoll(void)
 * Name       : void GUiInit(void)
 * Function   : GUI Init 
 ******************************************************************************/
-void GUiInit(void)
+void GuiInit(void)
 {
-	GuiDispath(ModSlaveReceive);
+	GuiDispath(GuiReceive);
 	
 	Device.Usart3.Register(Receive);
 	Device.Systick.Register(100,GuiTimeExpire);

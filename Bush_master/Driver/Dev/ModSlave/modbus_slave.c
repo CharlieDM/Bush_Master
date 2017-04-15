@@ -206,7 +206,7 @@ static void SlaveSend(void)
 {
     if(stSlave.ucsendlen > 0)
     {
-		Device.Usart1.Send(stSlave.ucSendBuf, stSlave.ucsendlen);
+				Device.Usart3.Send(stSlave.ucSendBuf, stSlave.ucsendlen);
         stSlave.ucsendlen = 0;
     }	
 }

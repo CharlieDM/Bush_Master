@@ -1,7 +1,8 @@
 
 #include "core_hal.h"
+#include "Gui.h"
 #include "Guifunc.h"
-#include "data.h"
+#include "appdata.h"
 #include "bittool.h"
 
 static struct 
@@ -29,13 +30,13 @@ eGUIException eGuiReadRegister( uint8 * pucFrame, uint16 usLength )
 	uint16 uslen = 0;
 	
 	/* Check data validation */
-	if(usLength < GUI_SIZE_MIN) return MOD_EX_ILLEGAL_DATA_ADDRESS;
+	if(usLength < GUI_SIZE_MIN) return GUI_EX_ILLEGAL_DATA_ADDRESS;
 	
 	/* Deal the data */
 	usaddr = pucFrame[2]*256 + pucFrame[3];
 	uslen  = pucFrame[4]*256 + pucFrame[5];
 
-	if(uslen > 25) return MOD_EX_ILLEGAL_DATA_VALUE;
+	if(uslen > 25) return GUI_EX_ILLEGAL_DATA_VALUE;
 	
 	switch(usaddr)
 	{
@@ -55,7 +56,7 @@ eGUIException eGuiReadRegister( uint8 * pucFrame, uint16 usLength )
 			break;
 	}
 	
-	return MOD_EX_NONE;
+	return GUI_EX_NULL;
 }
 
 /******************************************************************************
@@ -66,7 +67,7 @@ eGUIException eGuiWriteSingleRegister( uint8 * pucFrame, uint16 usLength )
 {
 
 
-	return MOD_EX_NONE;
+	return GUI_EX_NULL;
 }
 
 /******************************************************************************
@@ -76,7 +77,7 @@ eGUIException eGuiWriteSingleRegister( uint8 * pucFrame, uint16 usLength )
 eGUIException eGuiWriteMultiRegister( uint8 * pucFrame, uint16 usLength )
 {
 
-	return MOD_EX_NONE;
+	return GUI_EX_NULL;
 
 }
 

@@ -2,9 +2,7 @@
 #ifndef _CORE_EVENT_H_
 #define _CORE_EVENT_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "type_def.h"
 
 /* MACRO */
 #define EVENT_URGENT            (1)                       /* It is an urgent event */
@@ -33,11 +31,6 @@ typedef struct _Event
 uint8 Event_Init(void);
 uint8 Event_Set(uint8 u8TaskID, uint8 u8Evt, uint8 u8Urg, void *pPara);
 EventStruct* Event_Get(void);
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _MOE_EVENT_H_ */
 

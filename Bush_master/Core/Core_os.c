@@ -1,19 +1,21 @@
 
-#include "type_def.h"
-#include "Core_os.h"
 #include "debug.h"
 #include "Core_Hal.h"
 #include "Core_Event.h"
+#include "Core_app.h"
+#include "Core_os.h"
 
 static PF_POLL   sg_pfPoll   = NULL;
 static EventStruct sg_tEvt = {NULL};
 static EventStruct *sg_ptEvt = &sg_tEvt;
 
+extern PF_TASK_PROCESS cg_apfTaskFn[];
+
 /******************************************************************************
 * Name       : uint8 OS_Init(PF_POLL pfPoll)
 * Function   : Init MOE
 ******************************************************************************/
-uint8 OS_Init(PF_POLL pfPoll)
+uint8 Os_Init(PF_POLL pfPoll)
 {
     /* Get poll process function */
     sg_pfPoll = pfPoll;
@@ -21,8 +23,8 @@ uint8 OS_Init(PF_POLL pfPoll)
     /* Init HAL */
     HAL_Init();
 
-	/* Init Data */
-	AppDataInit();
+		/* Init Data */
+		AppDataInit();
 	
     /* Init event mechanism */
     Event_Init();
@@ -44,12 +46,13 @@ uint8 OS_Init(PF_POLL pfPoll)
 * Name       : void Moe_Run_System(void)
 * Function   : The main function to schedule tasks.
 ******************************************************************************/
-void OS_Run(void)
+void Os_Run(void)
 {
     while(1)                             
     {
     	/* if have the Event, then run the Event Function  */
-        if(sg_ptEvt = Event_Get())    
+				sg_ptEvt = Event_Get();
+        if(sg_ptEvt)    
         {
             cg_apfTaskFn[sg_ptEvt->u8Task - 1](sg_ptEvt->u8Evt, sg_ptEvt->pPara);  
             sg_ptEvt->u8Task = TASK_NO_TASK;                      

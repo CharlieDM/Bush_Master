@@ -22,7 +22,7 @@ uint8 Event_Init(void)
     /* Loop for the desired length bytes to be set */
     for(u8Idx = 0; u8Idx < u8Len; u8Idx++)
     {
-        (uint8*)sg_atEvtQueue[u8Idx] = 0;   /* Set with the desired value */
+        sg_atEvtQueue[u8Idx].u8Task = 0;   /* Set with the desired value */
     }
     return SW_OK;
 }

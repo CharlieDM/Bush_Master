@@ -3,8 +3,8 @@
 #include "modproto.h"
 #include "modfunc_host.h"
 #include "modbus_host.h"
-#include "data.h"
 #include "bittool.h"
+#include "appdata.h"
 
 static struct 
 {
@@ -40,7 +40,7 @@ eMODException eModHostReadRegister( uint8 * pucFrame, uint16 usLength )
 	
 	if( ucid < 100)
 	{
-		U8CpyToU16(((uint16 *)HostData.pvSensor)+ucid*25+usaddr,&pucFrame[3],uslen);
+		U8CpyToU16(((int16 *)HostData.pvSensor)+ucid*25+usaddr,&pucFrame[3],uslen);
 	}
 	else if(ucid > 100)
 	{

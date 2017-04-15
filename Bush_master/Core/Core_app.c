@@ -1,10 +1,10 @@
 
-#include "type_def.h"
 #include "debug.h"
-#include "Task.h"
-#include "data.h"
+#include "appdata.h"
+#include "Core_app.h"
+#include "task.h"
 
-DataStruct Data = {DEFAULT_SENSOR,DEFAULT_SENSOR,DEFAULT_SENSOR,DEFAULT_SENSOR,DEFAULT_SENSOR};
+DataStruct Data = {{DEFAULT_SENSOR,DEFAULT_SENSOR,DEFAULT_SENSOR,DEFAULT_SENSOR,DEFAULT_SENSOR}};
 
 /* Add your task process here */
 const PF_TASK_PROCESS cg_apfTaskFn[] = 

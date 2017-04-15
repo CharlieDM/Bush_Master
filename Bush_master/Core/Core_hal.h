@@ -2,10 +2,6 @@
 #ifndef _CORE_HAL_H_
 #define _CORE_HAL_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "type_def.h"
 	
 typedef struct Device
@@ -42,10 +38,6 @@ typedef struct Device
 extern DeviceStruct Device;
 
 uint8 HAL_Init(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _MOE_HAL_H_ */
 

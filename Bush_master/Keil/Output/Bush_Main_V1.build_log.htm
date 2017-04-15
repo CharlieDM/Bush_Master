@@ -4,13 +4,17 @@
 <h1>µVision Build Log</h1>
 <h2>Project:</h2>
 C:\Users\Administrator\Desktop\git\trunk\Bush_master\Keil\MultiSPI.uvprojx
-Project File Date:  04/09/2017
+Project File Date:  04/15/2017
 
 <h2>Output:</h2>
 Rebuild target 'MultiSPI'
 compiling main.c...
+compiling task.c...
 compiling stm32f10x_it.c...
 compiling Core_hal.c...
+compiling Core_app.c...
+compiling Core_event.c...
+compiling Core_os.c...
 compiling core_cm3.c...
 compiling system_stm32f10x.c...
 assembling startup_stm32f10x_cl.s...
@@ -18,46 +22,95 @@ compiling hal_uart5.c...
 compiling hal_uart3.c...
 compiling hal_spi.c...
 compiling hal_systick.c...
+compiling gui.c...
+compiling guifunc.c...
 compiling modbus_host.c...
-compiling modbus_slave.c...
 compiling modfunc_host.c...
-..\Driver\Dev\modfunc_host.c(22): warning:  #550-D: variable "ucid" was set but never used
-        uint8  ucid = 0;
-..\Driver\Dev\modfunc_host.c(23): warning:  #550-D: variable "usaddr" was set but never used
-        uint16 usaddr = 0;
-..\Driver\Dev\modfunc_host.c(11): warning:  #177-D: variable "HostDataStruct" was declared but never referenced
-  }HostDataStruct;
-..\Driver\Dev\modfunc_host.c: 3 warnings, 0 errors
+compiling modbus_slave.c...
 compiling modfunc_slave.c...
-..\Driver\Dev\modfunc_slave.c(9): warning:  #550-D: variable "usaddr" was set but never used
+..\Driver\Dev\ModSlave\modfunc_slave.c(9): warning:  #550-D: variable "usaddr" was set but never used
         uint16 usaddr = 0;
-..\Driver\Dev\modfunc_slave.c(27): warning:  #550-D: variable "usaddr" was set but never used
+..\Driver\Dev\ModSlave\modfunc_slave.c(27): warning:  #550-D: variable "usaddr" was set but never used
         uint16 usaddr = 0;
-..\Driver\Dev\modfunc_slave.c(28): warning:  #550-D: variable "uslen" was set but never used
+..\Driver\Dev\ModSlave\modfunc_slave.c(28): warning:  #550-D: variable "uslen" was set but never used
         uint16 uslen = 0;
-..\Driver\Dev\modfunc_slave.c(47): warning:  #550-D: variable "usaddr" was set but never used
+..\Driver\Dev\ModSlave\modfunc_slave.c(47): warning:  #550-D: variable "usaddr" was set but never used
         uint16 usaddr = 0;
-..\Driver\Dev\modfunc_slave.c(48): warning:  #550-D: variable "uslen" was set but never used
+..\Driver\Dev\ModSlave\modfunc_slave.c(48): warning:  #550-D: variable "uslen" was set but never used
         uint16 uslen = 0;
-..\Driver\Dev\modfunc_slave.c: 5 warnings, 0 errors
+..\Driver\Dev\ModSlave\modfunc_slave.c: 5 warnings, 0 errors
 compiling queue.c...
 compiling crc.c...
+compiling bittool.c...
 linking...
-Program Size: Code=6652 RO-data=368 RW-data=212 ZI-data=1876  
+Program Size: Code=7132 RO-data=376 RW-data=236 ZI-data=2116  
 FromELF: creating hex file...
-".\Output\Bush_Main_V1.axf" - 0 Error(s), 8 Warning(s).
-</pre>
-</body>
-</html>
+".\Output\Bush_Main_V1.axf" - 0 Error(s), 5 Warning(s).
+tool.c...
+linking...
+Program Size: Code=7132 RO-data=376 RW-data=240 ZI-data=2112  
+FromELF: creating hex file...
+".\Output\Bush_Main_V1.axf" - 0 Error(s), 6 Warning(s).
+ (referred from guifunc.o).
+.\Output\Bush_Main_V1.axf: Error: L6218E: Undefined symbol U8CpyToU16 (referred from modfunc_host.o).
+Not enough information to list image symbols.
+Finished: 1 information, 0 warning and 3 error messages.
+".\Output\Bush_Main_V1.axf" - 3 Error(s), 6 Warning(s).
+Target not created
 
-</body>
-</html>
-ver used
+Not enough information to list image symbols.
+Finished: 1 information, 0 warning and 5 error messages.
+".\Output\Bush_Main_V1.axf" - 5 Error(s), 6 Warning(s).
+Target not created
+.o).
+.\Output\Bush_Main_V1.axf: Error: L6218E: Undefined symbol U8CpyToU16 (referred from modfunc_host.o).
+Not enough information to list image symbols.
+Finished: 1 information, 0 warning and 5 error messages.
+".\Output\Bush_Main_V1.axf" - 5 Error(s), 7 Warning(s).
+Target not created
+
+..\Driver\Dev\Gui\guifunc.c(59): error:  #20: identifier "MOD_EX_NONE" is undefined
+        return MOD_EX_NONE;
+..\Driver\Dev\Gui\guifunc.c(70): error:  #20: identifier "MOD_EX_NONE" is undefined
+        return MOD_EX_NONE;
+..\Driver\Dev\Gui\guifunc.c(80): error:  #20: identifier "MOD_EX_NONE" is undefined
+        return MOD_EX_NONE;
+..\Driver\Dev\Gui\guifunc.c: 0 warnings, 15 errors
+compiling modbus_host.c...
+compiling modfunc_host.c...
+..\Driver\Dev\ModHost\modfunc_host.c(43): warning:  #167-D: argument of type "uint16 *" is incompatible with parameter of type "int16 *"
+                U8CpyToU16(((uint16 *)HostData.pvSensor)+ucid*25+usaddr,&pucFrame[3],uslen);
+..\Driver\Dev\ModHost\modfunc_host.c: 1 warning, 0 errors
+compiling modbus_slave.c...
+compiling modfunc_slave.c...
+..\Driver\Dev\ModSlave\modfunc_slave.c(9): warning:  #550-D: variable "usaddr" was set but never used
         uint16 usaddr = 0;
-..\Driver\Dev\modfunc_slave.c(48): warning:  #550-D: variable "uslen" was set but never used
+..\Driver\Dev\ModSlave\modfunc_slave.c(27): warning:  #550-D: variable "usaddr" was set but never used
+        uint16 usaddr = 0;
+..\Driver\Dev\ModSlave\modfunc_slave.c(28): warning:  #550-D: variable "uslen" was set but never used
         uint16 uslen = 0;
-..\Driver\Dev\modfunc_slave.c: 5 warnings, 0 errors
+..\Driver\Dev\ModSlave\modfunc_slave.c(47): warning:  #550-D: variable "usaddr" was set but never used
+        uint16 usaddr = 0;
+..\Driver\Dev\ModSlave\modfunc_slave.c(48): warning:  #550-D: variable "uslen" was set but never used
+        uint16 uslen = 0;
+..\Driver\Dev\ModSlave\modfunc_slave.c: 5 warnings, 0 errors
 compiling queue.c...
 compiling crc.c...
-".\Output\Bush_Main_V1.axf" - 2 Error(s), 9 Warning(s).
+".\Output\Bush_Main_V1.axf" - 15 Error(s), 7 Warning(s).
+Target not created
+odSlave\modfunc_slave.c(48): warning:  #550-D: variable "uslen" was set but never used
+        uint16 uslen = 0;
+..\Driver\Dev\ModSlave\modfunc_slave.c: 5 warnings, 0 errors
+compiling queue.c...
+compiling crc.c...
+".\Output\Bush_Main_V1.axf" - 17 Error(s), 7 Warning(s).
+Target not created
+d
+        uint16 usaddr = 0;
+..\Driver\Dev\ModSlave\modfunc_slave.c(48): warning:  #550-D: variable "uslen" was set but never used
+        uint16 uslen = 0;
+..\Driver\Dev\ModSlave\modfunc_slave.c: 5 warnings, 0 errors
+compiling queue.c...
+compiling crc.c...
+".\Output\Bush_Main_V1.axf" - 18 Error(s), 8 Warning(s).
 Target not created

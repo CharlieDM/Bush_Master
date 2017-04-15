@@ -144,7 +144,7 @@ static void ModHostReceive(void)
 	while( sg_tQueue.u8Cnt > 0 )
 	{
 		Queue_Pop(&sg_tQueue,&ucdata);		
-		if(ucdata != stHost.ucaddr && ucpos == 0 ) continue; 	
+		if(ucdata != stHost.ucid && ucpos == 0 ) continue; 	
 	
 		if(ucpos < MOD_HOST_SIZE_MAX)
 		{

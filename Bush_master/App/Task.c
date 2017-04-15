@@ -1,19 +1,9 @@
-/******************************************************************************
-* File       : Task1.c
-* Function   : It is No. 1 task which is just a demo task
-* Description: To be done.           
-* Version    : V1.00
-* Author     : Ian
-* Date       : 3rd May 2016
-* History    :  No.  When           Who           What
-*               1    3/May/2016     Ian           Create
-******************************************************************************/
 
 #include "type_def.h"
-#include "Task.h"
+#include "task.h"
 #include "debug.h"
-
-static uint8 sg_u8TaskID = TASK_NO_TASK;
+#include "Core_os.h"
+#include "Core_event.h"
 
 /******************************************************************************
 * Name       : uint8 Task1_Process(uint8 u8Evt, void *pPara)

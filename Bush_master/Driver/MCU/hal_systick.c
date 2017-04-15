@@ -41,7 +41,7 @@ static void TaskUpdate(void)
             stTaskComps[i].Timer--;          
             if (stTaskComps[i].Timer == 0)        
             {
-                 stTaskComps[i].Timer = TaskComps[i].LvTimer;       
+                 stTaskComps[i].Timer = stTaskComps[i].LvTimer;       
                  stTaskComps[i].Run = 1;           
             }
         }
