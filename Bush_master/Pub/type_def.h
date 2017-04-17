@@ -5,7 +5,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#include "stm32f10x.h"
 
 /* Definition for tpyes */
 typedef unsigned char         uint8;       /* Type definition for 8-bit unsigned char       */
@@ -18,13 +18,16 @@ typedef signed int            int32;       /* Type definition for 32-bit signed 
 
 typedef uint8 (*PF_TASK_PROCESS)(uint8 u8Evt, void *pPara);
 
-#define NULL              (0)         /* Value for NULL pointer */
-#define SW_OK             (0)         /* Return: Successful */
-#define SW_ERR            (0xFF)      /* Return: Failed     */
+#define NULL              		(0)         /* Value for NULL pointer */
+#define SW_OK             		(0)         /* Return: Successful */
+#define SW_ERR            		(0xFF)      /* Return: Failed     */
 	
-#define TRUE							(1)
-#define FALSE							(0)
-	
+#define TRUE					(1)
+#define FALSE					(0)
+
+#define Enter_Critical()		//__disable_irq()
+#define Leave_Critical()		//__denable_irq()
+
 #ifdef __cplusplus
 }
 #endif
