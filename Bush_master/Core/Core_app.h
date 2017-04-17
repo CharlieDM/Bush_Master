@@ -6,7 +6,7 @@
 void AppDataInit(void);
 
 
-#endif /* MOE_APP_H */
+#endif 
 
 /* End of file */
 

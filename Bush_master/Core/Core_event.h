@@ -32,7 +32,7 @@ uint8 Event_Init(void);
 uint8 Event_Set(uint8 u8TaskID, uint8 u8Evt, uint8 u8Urg, void *pPara);
 EventStruct* Event_Get(void);
 
-#endif /* _MOE_EVENT_H_ */
+#endif 
 
 /* End of file */
 

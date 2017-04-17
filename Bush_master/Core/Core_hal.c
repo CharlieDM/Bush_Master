@@ -1,5 +1,6 @@
 
 #include "core_hal.h"
+#include "hal_gpio.h"
 #include "hal_uart3.h"
 #include "hal_uart5.h"
 #include "hal_spi.h"
@@ -13,6 +14,7 @@ uint8 HAL_Init(void)
 	Hal_Usart3_Init();
 	Hal_Spi_Init();
 	Hal_SystickInit();
+	//Hal_GpioInit();
 	
 	return SW_OK;
 }

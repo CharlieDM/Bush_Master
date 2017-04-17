@@ -3,9 +3,17 @@
 #define _CORE_HAL_H_
 
 #include "type_def.h"
-	
+#include "stm32f10x.h"
+
 typedef struct Device
-{     
+{   
+	struct Gpio
+	{
+		void (*DoutOn)(GPIO_TypeDef _port,uint16 _pin);
+		void (*DoutOff)(GPIO_TypeDef _port,uint16 _pin);
+		uint16 (*Din)(GPIO_TypeDef *_port);
+	}Gpio;
+	
 	struct Usart3
 	{
 		void (*Register)(void *rxdFucn);
@@ -20,10 +28,7 @@ typedef struct Device
    
 	struct Spi
 	{
-		void (*WriteLow)(uint8 data);
-		uint8 (*ReadLow)(void);
-		void (*WriteHigh)(uint8 data);
-		uint8 (*ReadHigh)(void);
+		void (*ReadWrite)(uint8 len,uint8 *wbuf, uint8 * rbuf);
 	}Spi;	
 	
 	struct Systick

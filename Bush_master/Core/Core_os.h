@@ -14,7 +14,7 @@ typedef void (*PF_POLL)(void);
 #define TASK_FIRST_TASK             (0x01)                    /* Task number of the first one             */
 #define TASK_LAST_TASK              MAX_TASK_NUM              /* Task number of the last one              */
 
-uint8 Os_Init(PF_POLL pfPoll);
+uint8 Os_Init(void);
 void Os_Run(void);
 
 
