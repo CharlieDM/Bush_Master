@@ -1,9 +1,0 @@
-.\output\modbus_slave.o: ..\Driver\Dev\ModSlave\modbus_slave.c
-.\output\modbus_slave.o: ..\Driver\Dev\modproto.h
-.\output\modbus_slave.o: ..\Pub\type_def.h
-.\output\modbus_slave.o: ..\Driver\Dev\ModSlave\modbus_slave.h
-.\output\modbus_slave.o: ..\Driver\Dev\ModSlave\modfunc_slave.h
-.\output\modbus_slave.o: ..\Core\core_hal.h
-.\output\modbus_slave.o: ..\Driver\MCU\hal_systick.h
-.\output\modbus_slave.o: ..\Utility\queue.h
-.\output\modbus_slave.o: ..\Utility\crc.h

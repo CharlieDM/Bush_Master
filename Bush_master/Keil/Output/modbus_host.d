@@ -1,9 +1,0 @@
-.\output\modbus_host.o: ..\Driver\Dev\ModHost\modbus_host.c
-.\output\modbus_host.o: ..\Driver\Dev\modproto.h
-.\output\modbus_host.o: ..\Pub\type_def.h
-.\output\modbus_host.o: ..\Driver\Dev\ModHost\modbus_host.h
-.\output\modbus_host.o: ..\Driver\Dev\ModHost\modfunc_host.h
-.\output\modbus_host.o: ..\Core\core_hal.h
-.\output\modbus_host.o: ..\Driver\MCU\hal_systick.h
-.\output\modbus_host.o: ..\Utility\queue.h
-.\output\modbus_host.o: ..\Utility\crc.h

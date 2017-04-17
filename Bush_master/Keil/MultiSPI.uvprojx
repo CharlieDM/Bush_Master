@@ -361,7 +361,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER, STM32F10X_CL</Define>
               <Undefine></Undefine>
-              <IncludePath>.\App;..\Core;..\Cpu\STM32F10x_StdPeriph_Driver\inc;..\Cpu\CMSIS\CM3\CoreSupport;..\Cpu\CMSIS\CM3\DeviceSupport\ST\STM32F10x;..\Cpu\CMSIS\CM3\DeviceSupport\ST\STM32F10x\startup;..\Driver\Dev;..\Driver\Dev\Gui;..\Driver\Dev\ModHost;..\Driver\Dev\ModSlave;..\Driver\MCU;..\Pub;..\Utility</IncludePath>
+              <IncludePath>..\App;..\Core;..\Cpu\STM32F10x_StdPeriph_Driver\inc;..\Cpu\CMSIS\CM3\CoreSupport;..\Cpu\CMSIS\CM3\DeviceSupport\ST\STM32F10x;..\Cpu\CMSIS\CM3\DeviceSupport\ST\STM32F10x\startup;..\Driver\Dev;..\Driver\Dev\IO;..\Driver\Dev\Gui;..\Driver\Dev\ModHost;..\Driver\Dev\ModSlave;..\Driver\MCU;..\Pub;..\Utility</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -413,11 +413,6 @@
               <FileName>task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\App\task.c</FilePath>
-            </File>
-            <File>
-              <FileName>app_data.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\App\app_data.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -569,6 +564,11 @@
               <FileType>1</FileType>
               <FilePath>..\Driver\Dev\ModSlave\modfunc_slave.c</FilePath>
             </File>
+            <File>
+              <FileName>io.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Driver\Dev\IO\io.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -598,6 +598,11 @@
               <FileName>crc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Utility\crc.c</FilePath>
+            </File>
+            <File>
+              <FileName>bittool.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Utility\bittool.c</FilePath>
             </File>
           </Files>
         </Group>
