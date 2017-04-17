@@ -194,8 +194,7 @@ static void GuiError(void)
 	static uint8 ucerrortimes = 0;
 	switch( stGui.ucstate )
 	{
-		case MOD_FRAME:
-			
+		case MOD_FRAME:			
 			if(ucerrortimes >= 5)
 			{
 				stGui.ucerror |= 0x01;
@@ -203,8 +202,7 @@ static void GuiError(void)
 			}
 			break;
 
-		case MOD_EXEC:
-			
+		case MOD_EXEC:			
 			if(ucerrortimes >= 5)
 			{
 				stGui.ucerror |= 0x02;
@@ -215,6 +213,8 @@ static void GuiError(void)
 		default:
 			break;
 	}
+	
+	/* Change the State*/
 	GuiDispath(GuiReceive); 
 	ucerrortimes++;	
 }
@@ -228,10 +228,10 @@ static void GuiSend(void)
 	uint16 usCRC = 0;
     if(stGui.ucsendlen > 0)
     {	
-				usCRC = usMBCRC16(stGui.pucsendBuf,stGui.ucsendlen-2);
+		usCRC = usMBCRC16(stGui.pucsendBuf,stGui.ucsendlen-2);
         stGui.pucsendBuf[stGui.ucsendlen-2] = usCRC & 0xFF;
         stGui.pucsendBuf[stGui.ucsendlen-1] = usCRC>>8;
-				Device.Usart3.Send(stGui.pucsendBuf, stGui.ucsendlen);
+		Device.Usart3.Send(stGui.pucsendBuf, stGui.ucsendlen);
         stGui.ucsendlen = 0;
     }	
 }

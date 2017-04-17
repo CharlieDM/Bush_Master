@@ -2,39 +2,26 @@
 #define __HAL_SPI_H
 #include "stm32f10x.h"
 
-#define SOFT_SPI
+/* ----------------------- Defines ------------------------------------------*/
+#define SPI1_CPOL 			( 0x01 )
 
-/* 定义SPI总线的 GPIO端口 */
-#define RCC_NSS 	RCC_APB2Periph_GPIOB
-#define PORT_NSS	GPIOB
-#define PIN_NSS		GPIO_Pin_15
+#define RCC_SPI1 	      	RCC_APB2Periph_GPIOB
+#define PORT_SPI1	      	GPIOB
+#define PIN_NSS1		    GPIO_Pin_15
+#define PIN_SCK1		    GPIO_Pin_14
+#define PIN_MOSI1  	    	GPIO_Pin_13
+#define PIN_MISO1  	    	GPIO_Pin_12
 
-#define RCC_SCK 	RCC_APB2Periph_GPIOB
-#define PORT_SCK	GPIOB
-#define PIN_SCK		GPIO_Pin_14
+#define SPI1_NSS_0()		PORT_SPI1->BRR  = PIN_NSS1
+#define SPI1_NSS_1()		PORT_SPI1->BSRR = PIN_NSS1
+#define SPI1_SCK_0()		PORT_SPI1->BRR  = PIN_SCK1
+#define SPI1_SCK_1()		PORT_SPI1->BSRR = PIN_SCK1
+#define SPI1_MOSI_0()	  	PORT_SPI1->BRR  = PIN_MOSI1
+#define SPI1_MOSI_1()	  	PORT_SPI1->BSRR = PIN_MOSI1
+	
+#define MISO1_IS_HIGH()	(GPIO_ReadInputDataBit(PORT_SPI1, PIN_MISO1) == Bit_SET)
 
-#define RCC_MISO 	RCC_APB2Periph_GPIOB
-#define PORT_MISO	GPIOB
-#define PIN_MISO	GPIO_Pin_12
-
-#define RCC_MOSI 	RCC_APB2Periph_GPIOB
-#define PORT_MOSI	GPIOB
-#define PIN_MOSI	GPIO_Pin_13
-
-//软件控制片选脚
-#define SPI1_CS_LOW        (PORT_NSS->BRR = PIN_NSS)
-#define SPI1_CS_HIGH       (PORT_NSS->BSRR  = PIN_NSS)
-
-#ifdef SOFT_SPI		/* 软件SPI */
-	#define SCK_0()		PORT_SCK->BRR = PIN_SCK
-	#define SCK_1()		PORT_SCK->BSRR = PIN_SCK
-
-	#define MOSI_0()	PORT_MOSI->BRR = PIN_MOSI
-	#define MOSI_1()	PORT_MOSI->BSRR = PIN_MOSI
-
-	#define MISO_IS_HIGH()	(GPIO_ReadInputDataBit(PORT_MISO, PIN_MISO) == Bit_SET)
-#endif
-
+/* ----------------------- Funs ------------------------------------------*/
 void    Hal_Spi_Init(void);
 
 #endif

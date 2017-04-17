@@ -7,46 +7,52 @@
 #include "queue.h"
 #include "crc.h"
 
+/* ----------------------- Static Func ------------------------------------------*/
 static void ModSlaveError(void);
 static void ModSlaveReceive(void);
 static void ModSlaveExec(void);
 
+/* ----------------------- Static Var ------------------------------------------*/
 static xMODFuncHandler xFuncHandler[] =
 {
 	{MOD_FUNC_READ_MULTIPLE_REGISTER,eModSlaveReadRegister},
 	{MOD_FUNC_WRITE_SINGLE_REGISTER,eModSlaveWriteSingleRegister},
 	{MOD_FUNC_WRITE_MULTIPLE_REGISTERS,eModSlaveWriteMultiRegister}
 };
-
 static uint8 sg_au8Queue[MOD_SLAVE_SIZE_MAX] = {0};
 static T_QUEUE_INFO sg_tQueue={sg_au8Queue,0,0,0,MOD_SLAVE_SIZE_MAX};
-static uint8 ucFrameBuf[MOD_SLAVE_SIZE_MAX] = {0};
+static uint8 ucRevBuf[MOD_SLAVE_SIZE_MAX] = {0};
 static uint8 ucSendBuf[MOD_SLAVE_SIZE_MAX] = {0};
-
 static uint16 ucTimes = 0;
 static pFunc pfStateFunc = NULL;
-
 SlaveStruct stSlave =
 {
 	MOD_FRAME,
 	0,
 	0,
-	10,
+	200,
 	0,
-	ucFrameBuf,
+	ucRevBuf,
 	0,
 	ucSendBuf,
 	MOD_EX_NONE,
 };
-
 SlaveDataStruct stSlaveData;
 
+/******************************************************************************
+* Name       : static void Receive(uint8 data)
+* Function   : ModbusSlave receive a data
+******************************************************************************/
 static void Receive(uint8 data)
 {
 	Queue_Push(&sg_tQueue,data);
 }
 
-static void ModSalveTimeExpire()
+/******************************************************************************
+* Name       : static void ModSalveTimeExpire(void)
+* Function   : ModbusSlave State Expire time
+******************************************************************************/
+static void ModSalveTimeExpire(void)
 {
 	if(ucTimes) 
 	{
@@ -71,8 +77,11 @@ static pFunc ModSlaveRun(void)
 	return pfStateFunc;
 }
 
-
-static void ModSlaveReceive()
+/******************************************************************************
+* Name       : static void ModSlaveReceive(void)
+* Function   : ModbusSlave receive data deal and parser a Frame data
+******************************************************************************/
+static void ModSlaveReceive(void)
 {
 	uint8 ucdata;
 	uint8 ucpos = 0;
@@ -88,7 +97,7 @@ static void ModSlaveReceive()
 	
 		if(ucpos < MOD_SLAVE_SIZE_MAX)
 		{
-			ucFrameBuf[ucpos++] = ucdata;
+			ucRevBuf[ucpos++] = ucdata;
 		}
 
 		if( ucpos == 2 )
@@ -105,14 +114,14 @@ static void ModSlaveReceive()
 				
 				case MOD_FUNC_WRITE_MULTIPLE_REGISTERS:
 					Queue_Pop(&sg_tQueue,&ucdata);	
-					ucFrameBuf[ucpos++] = ucdata;
+					ucRevBuf[ucpos++] = ucdata;
 					Queue_Pop(&sg_tQueue,&ucdata);	
-					ucFrameBuf[ucpos++] = ucdata;
+					ucRevBuf[ucpos++] = ucdata;
 					Queue_Pop(&sg_tQueue,&ucdata);	
-					ucFrameBuf[ucpos++] = ucdata;
+					ucRevBuf[ucpos++] = ucdata;
 					Queue_Pop(&sg_tQueue,&ucdata);	
-					ucFrameBuf[ucpos++] = ucdata;
-					uclen = ucFrameBuf[4]*256+ucFrameBuf[5];
+					ucRevBuf[ucpos++] = ucdata;
+					uclen = ucRevBuf[4]*256+ucRevBuf[5];
 					break;
 				
 				default:	
@@ -124,7 +133,7 @@ static void ModSlaveReceive()
 		if( uclen > 0 && ucpos > 0 && ucpos >= uclen ) break;
 	}
 
-	if(uclen >= MOD_SLAVE_SIZE_MIN && usMBCRC16(ucFrameBuf,uclen) == 0 )
+	if(uclen >= MOD_SLAVE_SIZE_MIN && usMBCRC16(ucRevBuf,uclen) == 0 )
 	{
 		stSlave.ucrevlen= uclen;
 		ModSlaveDispath(ModSlaveExec);
@@ -135,7 +144,11 @@ static void ModSlaveReceive()
 	}	
 }
 
-static void ModSlaveExec()
+/******************************************************************************
+* Name       : static void ModSlaveExec(void)
+* Function   : ModbusSlave a Frame data deal
+******************************************************************************/
+static void ModSlaveExec(void)
 {
 	uint8 i =0;
 	uint8 ucFunctionCode = 0;
@@ -152,7 +165,7 @@ static void ModSlaveExec()
 	}
 
 	stSlave.ucmodstate = MOD_EXEC;
-	ucFunctionCode = ucFrameBuf[MOD_FUNCTION_CODE];
+	ucFunctionCode = ucRevBuf[MOD_FUNCTION_CODE];
 	for( i=0; i<MOD_FUNC_HANDLERS_MAX;i++ )
 	{
 		if( xFuncHandler[i].ucFunctionCode == ucFunctionCode )
@@ -172,13 +185,16 @@ static void ModSlaveExec()
 	}
 }
 
-static void ModSlaveError()
+/******************************************************************************
+* Name       : static void ModSlaveError(void)
+* Function   : ModbusSlave Error Deal
+******************************************************************************/
+static void ModSlaveError(void)
 {
 	static uint8 ucerrortimes = 0;
 	switch( stSlave.ucmodcmd )
 	{
-		case MOD_FRAME:
-			
+		case MOD_FRAME:			
 			if(ucerrortimes >= 5)
 			{
 				stSlave.ucerror |= 0x01;
@@ -186,44 +202,69 @@ static void ModSlaveError()
 			}
 			break;
 
-		case MOD_EXEC:
-			
+		case MOD_EXEC:			
 			if(ucerrortimes >= 5)
 			{
 				stSlave.ucerror |= 0x02;
 				ucerrortimes = 0;
 			}
+			
+			/* Fill the send data*/
+			stSlave.ucSendBuf[0] = MOD_ADDRESS_SLAVE;
+			stSlave.ucSendBuf[1] = 0x03;
+			stSlave.ucSendBuf[2] = 0xAA;
+			stSlave.ucSendBuf[3] = 0x55;
 			break;
 			
 		default:
 			break;
 	}
+	
+	/* Change the State */
 	ModSlaveDispath(ModSlaveReceive);
 	ucerrortimes++;	
 }
 
+/******************************************************************************
+* Name       : static void SlaveSend(void)
+* Function   : ModbusSlave Send Data
+******************************************************************************/
 static void SlaveSend(void)
 {
+	uint16 usCRC = 0;
     if(stSlave.ucsendlen > 0)
     {
-				Device.Usart3.Send(stSlave.ucSendBuf, stSlave.ucsendlen);
+    	usCRC = usMBCRC16(stSlave.ucSendBuf,stSlave.ucsendlen-2);
+        stSlave.ucSendBuf[stSlave.ucsendlen-2] = usCRC & 0xFF;
+        stSlave.ucSendBuf[stSlave.ucsendlen-1] = usCRC>>8;
+		Device.Usart3.Send(stSlave.ucSendBuf, stSlave.ucsendlen);
         stSlave.ucsendlen = 0;
     }	
 }
 
+/******************************************************************************
+* Name       : static void SlaveInit(void)
+* Function   : ModbusSlave Date&State Init
+******************************************************************************/
 static void SlaveInit(void)
 {
-
 	ModSlaveDispath(ModSlaveReceive);
-
 }
 
-static void ModSlavePoll()
+/******************************************************************************
+* Name       : void ModSlavePoll(void)
+* Function   : ModbusSlave Poll
+******************************************************************************/
+static void ModSlavePoll(void)
 {
 	(*ModSlaveRun())();
 	SlaveSend();
 }
 
+/******************************************************************************
+* Name       : void ModSlaveInit(void)
+* Function   : ModbusSlave Init 
+******************************************************************************/
 void ModSlaveInit()
 {
 	SlaveInit();

@@ -1,144 +1,107 @@
 
 #include "hal_spi.h"
 #include "core_hal.h"
+#include "type_def.h"
 
-static void Hal_Spi_Write_Byte_L(uint8_t _ucByte);
-static uint8_t Hal_Spi_Read_Byte_L(void);	
-static void Hal_Spi_Write_Byte_H(uint8_t _ucByte);
-static uint8_t Hal_Spi_Read_Byte_H(void);	
+/* ----------------------- Static Function ------------------------------------------*/
+static void Hal_Spi_Write_Read(uint8 len,uint8 *wbuf, uint8 * rbuf);
+
 
 void Hal_Spi_Init(void)
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
 
-	RCC_APB2PeriphClockCmd(RCC_SCK | RCC_MOSI | RCC_MISO, ENABLE);	
+	RCC_APB2PeriphClockCmd(RCC_SPI1, ENABLE);	
 
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;	
-	GPIO_InitStructure.GPIO_Pin = PIN_SCK;
-	GPIO_Init(PORT_SCK, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;	 
 
-	GPIO_InitStructure.GPIO_Pin = PIN_MOSI;
-	GPIO_Init(PORT_MOSI, &GPIO_InitStructure);	
+	GPIO_InitStructure.GPIO_Pin = PIN_NSS1;	
+	GPIO_Init(PORT_SPI1, &GPIO_InitStructure);
 
-	/* SPI片选脚，软件控制 */
-  GPIO_InitStructure.GPIO_Pin = PIN_NSS;	
-  GPIO_Init(PORT_NSS, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = PIN_SCK1;
+	GPIO_Init(PORT_SPI1, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Pin = PIN_MOSI1;
+	GPIO_Init(PORT_SPI1, &GPIO_InitStructure);	
 	
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;		/* MISO 设置为输入上拉 */
-	GPIO_InitStructure.GPIO_Pin = PIN_MISO;
-	GPIO_Init(PORT_MISO, &GPIO_InitStructure);
+	SPI1_NSS_1();	
+	SPI1_MOSI_0();
 	
-	Device.Spi.ReadHigh = Hal_Spi_Read_Byte_H;
-	Device.Spi.WriteHigh = Hal_Spi_Write_Byte_H;
-	Device.Spi.ReadLow = Hal_Spi_Read_Byte_L;
-	Device.Spi.WriteLow = Hal_Spi_Write_Byte_L;
+#if SPI1_CPOL==0
+	SPI1_SCK_0(); 
+#endif
+
+#if SPI1_CPOL==1
+	SPI1_SCK_1();  
+#endif
+
+	Device.Spi.ReadWrite = Hal_Spi_Write_Read;
 }
 
-static void Hal_Spi_Deay(void)
+static void Hal_Spi_Deay(uint16 _nus)
 {
-	uint32_t i;
-
-	for (i = 0; i < 5; i++);
-}
-
-static void Hal_Spi_Write_Byte_L(uint8_t _ucByte)
-{
-	uint8_t i;
-
-	for(i = 0; i < 8; i++)
+	uint32 ui;
+	while(_nus--)
 	{
-		if (_ucByte & 0x80)
-		{
-			MOSI_1();
-		}
-		else
-		{
-			MOSI_0();
-		}
-		Hal_Spi_Deay();
-		SCK_1();
-		_ucByte <<= 1;
-		Hal_Spi_Deay();
-		SCK_0();
+		for( ui = 0; ui < 5; ui++ );
 	}
-	Hal_Spi_Deay();
 }
 
-static uint8_t Hal_Spi_Read_Byte_L(void)
+static void Hal_Spi_Write_Read(uint8 len,uint8 *wbuf, uint8 * rbuf)
 {
-	uint8_t read = 0;
-	uint8_t i;
+	uint8_t  i = 0;
+	uint8_t  wtemp = 0;
+	uint8_t  rtemp = 0;	
 	
-	for (i = 0; i < 8; i++)
+	Enter_Critical();
+	
+	SPI1_MOSI_0(); 
+	SPI1_NSS_0();
+	Hal_Spi_Deay(600);
+	for(i = 0; i < len; i++)
 	{
-		read = read<<1;
-
-		if (MISO_IS_HIGH())
-		{
-			read++;
-		}
-		SCK_1();
-		Hal_Spi_Deay();
-		SCK_0();
-		Hal_Spi_Deay();
+	SPI1_SCK_0();	
+	if(i%8 == 0)
+	{
+		wtemp = wbuf[i/8];
 	}
-  return read;
-}
-
-static void Hal_Spi_Write_Byte_H(uint8_t _ucByte)
-{
-	uint8_t i;
-
-	for(i = 0; i < 8; i++)
+	if (wtemp & 0x01)
 	{
-		if (_ucByte & 0x80)
-		{
-			MOSI_1();
-		}
-		else
-		{
-			MOSI_0();
-		}
-		SCK_0();
-		_ucByte <<= 1;
-		Hal_Spi_Deay();
-		SCK_1();				/* SCK上升沿采集数据, SCK空闲时为高电平 */
-		Hal_Spi_Deay();
-	}
-}
-
-static uint8_t Hal_Spi_Read_Byte_H(void)
-{
-	uint8_t read = 0;
-	uint8_t i;
-	for (i = 0; i < 8; i++)
-	{
-		SCK_0();
-		Hal_Spi_Deay();
-		read = read << 1;
-		if (MISO_IS_HIGH())
-		{
-			read++;
-		}
-		SCK_1();
-		Hal_Spi_Deay();
-	}
-	return read;
-}
-
-void Hal_Spi_clk_Set(uint8_t _data)
-{
-	if (_data == 0)
-	{
-		SCK_0();
+		SPI1_MOSI_1();
 	}
 	else
 	{
-		SCK_1();
+		SPI1_MOSI_0();
 	}
-}
+	wtemp >>= 1;
+	Hal_Spi_Deay(600);
+	SPI1_SCK_1();	
 
+	Hal_Spi_Deay(600);
+	rtemp >>= 1;
+	if(MISO1_IS_HIGH())
+	{
+		rtemp |= 0x80;
+	}
+	else
+	{
+		rtemp |= 0x80;
+	}
+	if(((i+1)%8 == 0)&&(i != 0))
+	{
+		rbuf[(i+1)/8-1] = rtemp;
+	}
+	}
+	
+	Hal_Spi_Deay(600);
+	
+	SPI1_SCK_0();
+	SPI1_NSS_1();	
+	SPI1_MOSI_0(); 
+	
+	Leave_Critical();
+}
 
 
 

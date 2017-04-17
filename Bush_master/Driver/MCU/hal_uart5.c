@@ -87,7 +87,6 @@ static void Uart5_NVICConfig(void)
 {
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
-	/* 使能串口5中断 */
 	NVIC_InitStructure.NVIC_IRQChannel            = UART5_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 4;
 	NVIC_InitStructure.NVIC_IRQChannelCmd         = ENABLE;
@@ -110,7 +109,6 @@ static void Uart5_Send(uint8_t *TBuf, uint16_t _usLen)
 void UART5_IRQHandler(void)
 {
 	uint8_t ch;
-	/* 处理接收中断  */
 	if (USART_GetITStatus(UART5, USART_IT_RXNE) != RESET)
 	{
 		ch = USART_ReceiveData(UART5);	

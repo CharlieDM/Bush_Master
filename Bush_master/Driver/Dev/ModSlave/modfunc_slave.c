@@ -4,6 +4,10 @@
 #include "modbus_slave.h"
 #include "modfunc_slave.h"
 
+/******************************************************************************
+* Name       : eMODException eModSlaveReadRegister( uint8 * pucFrame, uint16 usLength )
+* Function   : CMD:0x03
+******************************************************************************/
 eMODException eModSlaveReadRegister( uint8 * pucFrame, uint16 usLength )
 {
 	uint16 usaddr = 0;
@@ -21,6 +25,10 @@ eMODException eModSlaveReadRegister( uint8 * pucFrame, uint16 usLength )
 	return MOD_EX_NONE;
 }
 
+/******************************************************************************
+* Name       : eMODException eModSlaveWriteSingleRegister( uint8 * pucFrame, uint16 usLength )
+* Function   : CMD:0x06
+******************************************************************************/
 eMODException eModSlaveWriteSingleRegister( uint8 * pucFrame, uint16 usLength )
 {
 
@@ -42,6 +50,10 @@ eMODException eModSlaveWriteSingleRegister( uint8 * pucFrame, uint16 usLength )
 	return MOD_EX_NONE;
 }
 
+/******************************************************************************
+* Name       : eMODException eModSlaveWriteMultiRegister( uint8 * pucFrame, uint16 usLength )
+* Function   : CMD:0x10 
+******************************************************************************/
 eMODException eModSlaveWriteMultiRegister( uint8 * pucFrame, uint16 usLength )
 {
 	uint16 usaddr = 0;

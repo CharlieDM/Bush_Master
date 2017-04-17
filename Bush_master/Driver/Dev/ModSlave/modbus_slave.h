@@ -30,6 +30,7 @@ typedef struct _SlaveData
 	void *Data;
 }SlaveDataStruct;
 
+/* ----------------------- Global Data ------------------------------------------*/
 extern SlaveStruct stSlave;
 extern SlaveDataStruct stSlaveData;
 
