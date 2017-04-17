@@ -5,7 +5,7 @@
 int main(void)
 {   
 	/* Init OS */
-	Os_Init(NULL);
+	Os_Init();
 	
 	/* Run OS */
 	Os_Run();	
