@@ -2,9 +2,9 @@
 #include "hal_gpio.h"
 #include "core_hal.h"
 
-static void Hal_GpioOutOn(GPIO_TypeDef _port,uint16 _pin);
-static void Hal_GpioOutOff(GPIO_TypeDef _port,uint16 _pin);
-static uint16 Hal_GpioRead(GPIO_TypeDef _port);
+static void Hal_GpioOutOn(GPIO_TypeDef *_port,uint16 _pin);
+static void Hal_GpioOutOff(GPIO_TypeDef *_port,uint16 _pin);
+static uint16 Hal_GpioRead(GPIO_TypeDef *_port);
 
 void Hal_GpioInit(void)
 {
@@ -15,13 +15,13 @@ void Hal_GpioInit(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_Out_PP;	 
 	GPIO_InitStructure.GPIO_Pin   = ELECTRIC_HEAT0|ELECTRIC_HEAT1|AIR_ELECTRIC_HEAT\
-									XHAUST_AIR|FRESH_AIR|LOW_CYCLE|MID_CYCLE|HIGH_CYCLE;
+									|XHAUST_AIR|FRESH_AIR|LOW_CYCLE|MID_CYCLE|HIGH_CYCLE;
 	GPIO_Init(GPIO_PORT_DOUT1, &GPIO_InitStructure);
 		
 	/* Two Group OUT */
 	RCC_APB2PeriphClockCmd(RCC_DOUT_GROUP2, ENABLE);
 	GPIO_InitStructure.GPIO_Pin   = RESERVED2|RESERVED1|EXHAUST_AIR_NEG|EXHAUST_AIR_POS\
-									FRESH_AIR_NEG|FRESH_AIR_POS;
+									|FRESH_AIR_NEG|FRESH_AIR_POS;
 	GPIO_Init(GPIO_PORT_DOUT2, &GPIO_InitStructure);
 
 	/* Three Group OUT */
@@ -72,7 +72,7 @@ static uint16 Hal_GpioRead(GPIO_TypeDef *_port)
 	return GPIO_ReadInputData(_port);
 }
 
-#endif
+
 
 
 
