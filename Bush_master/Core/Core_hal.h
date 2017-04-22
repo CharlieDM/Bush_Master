@@ -9,8 +9,8 @@ typedef struct Device
 {   
 	struct Gpio
 	{
-		void (*DoutOn)(GPIO_TypeDef _port,uint16 _pin);
-		void (*DoutOff)(GPIO_TypeDef _port,uint16 _pin);
+		void (*DoutOn)(GPIO_TypeDef *_port,uint16 _pin);
+		void (*DoutOff)(GPIO_TypeDef *_port,uint16 _pin);
 		uint16 (*Din)(GPIO_TypeDef *_port);
 	}Gpio;
 	
