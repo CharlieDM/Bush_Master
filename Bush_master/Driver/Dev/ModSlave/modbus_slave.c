@@ -37,7 +37,6 @@ SlaveStruct stSlave =
 	ucSendBuf,
 	MOD_EX_NONE,
 };
-SlaveDataStruct stSlaveData;
 
 /******************************************************************************
 * Name       : static void Receive(uint8 data)
@@ -265,7 +264,7 @@ static void ModSlavePoll(void)
 * Name       : void ModSlaveInit(void)
 * Function   : ModbusSlave Init 
 ******************************************************************************/
-void ModSlaveInit()
+void ModSlaveInit(void)
 {
 	SlaveInit();
 	

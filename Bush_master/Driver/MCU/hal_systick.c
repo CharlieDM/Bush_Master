@@ -21,7 +21,6 @@ static TaskStruct stTaskComps[Task_Num] = {{0,100,100,Func}};
 
 static void RegisterSystick(uint8 timer, void(*Func)())
 {
-	
 	CHECK_IF_RET_VOID(ucTaskPos>Task_Num-1, "Invalid Pos!!\n");
 	
 	stTaskComps[ucTaskPos].Run = 0;
@@ -61,7 +60,7 @@ static void TaskProcess(void)
     }   
 }
 
-void SysTick_ISR(void)
+void SysTick_Handler(void)
 {
 	TaskUpdate();
 }

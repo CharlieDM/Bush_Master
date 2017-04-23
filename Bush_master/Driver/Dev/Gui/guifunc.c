@@ -12,8 +12,8 @@ static struct
 }GuiData;
 
 /******************************************************************************
-* Name       : void HostFuncInit(void)
-* Function   : Init Hostfunction and the data relation
+* Name       : void GuiFuncInit(void)
+* Function   : Init GuiFuncInit and the data relation
 ******************************************************************************/
 void GuiFuncInit(void)
 {

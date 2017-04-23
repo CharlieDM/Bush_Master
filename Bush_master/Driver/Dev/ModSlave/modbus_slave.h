@@ -25,13 +25,9 @@ typedef struct _Slave
 }SlaveStruct;
 
 
-typedef struct _SlaveData
-{
-	void *Data;
-}SlaveDataStruct;
-
 /* ----------------------- Global Data ------------------------------------------*/
 extern SlaveStruct stSlave;
-extern SlaveDataStruct stSlaveData;
+
+void ModSlaveInit(void);
 
 #endif
