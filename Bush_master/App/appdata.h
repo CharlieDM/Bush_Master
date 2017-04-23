@@ -3,9 +3,9 @@
 #define _APP_DATA_H_
 
 #include "type_def.h"
+#include "slavedata.h"
 
 #define DEFAULT_SENSOR {0}
-
 
 typedef struct Sensor
 {
@@ -35,10 +35,11 @@ typedef struct Sensor
 	uint16 usFlashTimes;
 	uint16 usNFlashTimes;
 }SensorStruct;
-	
+
 typedef struct Data
 {     	    
 	SensorStruct stSensor[5];
+	AerkateStruct stAerkate;
 }DataStruct;
 
 extern DataStruct Data;
