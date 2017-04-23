@@ -52,8 +52,7 @@ static const uint8 aucCRCLo[] = {
     0x41, 0x81, 0x80, 0x40
 };
 
-uint16
-usMBCRC16( uint8 * pucFrame, uint16 usLen )
+uint16 usMBCRC16( uint8 * pucFrame, uint16 usLen )
 {
     uint8           ucCRCHi = 0xFF;
     uint16           ucCRCLo = 0xFF;

@@ -2,7 +2,7 @@
 /* ----------------------- Platform includes --------------------------------*/
 #include "bittool.h"
 
-void U8CpyToU16(int16 *psbuf, uint8 *pucbuf, uint8 uclen)
+void U8CpyToU16(uint16 *psbuf, uint8 *pucbuf, uint8 uclen)
 {
 	uint8 uci = 0;
 	for(uci = 0; uci<uclen/2; uci++)
