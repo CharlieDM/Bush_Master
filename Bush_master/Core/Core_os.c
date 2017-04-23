@@ -48,7 +48,7 @@ void Os_Run(void)
     while(1)                             
     {
     	/* if have the Event, then run the Event Function  */
-				sg_ptEvt = Event_Get();
+		sg_ptEvt = Event_Get();
         if(sg_ptEvt)    
         {
             cg_apfTaskFn[sg_ptEvt->u8Task - 1](sg_ptEvt->u8Evt, sg_ptEvt->pPara);  

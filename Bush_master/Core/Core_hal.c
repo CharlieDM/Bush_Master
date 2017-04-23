@@ -5,6 +5,7 @@
 #include "hal_uart5.h"
 #include "hal_spi.h"
 #include "hal_systick.h"
+#include "modbus_slave.h"
 
 DeviceStruct Device;
 
@@ -15,6 +16,7 @@ uint8 HAL_Init(void)
 	Hal_Spi_Init();
 	Hal_SystickInit();
 	Hal_GpioInit();
+	ModSlaveInit();
 	
 	return SW_OK;
 }
