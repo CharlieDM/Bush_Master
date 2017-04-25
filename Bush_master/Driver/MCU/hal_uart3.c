@@ -76,7 +76,7 @@ static void Usart3_Send(uint8_t *TBuf, uint16_t _usLen)
 	for(i_com=0;i_com<_usLen;i_com++)
 	{
 		USART_SendData(USART3,TBuf[i_com]);
-		while(USART_GetITStatus(USART3, USART_FLAG_TXE) == RESET);
+		while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);
 	}
 }
 
