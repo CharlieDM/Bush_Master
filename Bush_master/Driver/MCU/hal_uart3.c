@@ -48,7 +48,6 @@ void Hal_Usart3_Init(void)
 	USART_InitStructure.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;
 	USART_Init(USART3, &USART_InitStructure);
 
-  	USART_ITConfig(USART3, USART_IT_IDLE, ENABLE);	
 	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);	
 	USART_Cmd(USART3, ENABLE);		
 	USART_ClearFlag(USART3, USART_FLAG_TC);     
@@ -86,8 +85,10 @@ void USART3_IRQHandler(void)
 	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
 	{
 		ch = USART_ReceiveData(USART3);	
+	
 		Rxd3(ch);		
 	}
+
 }
 
 

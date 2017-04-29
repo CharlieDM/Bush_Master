@@ -30,7 +30,7 @@ SlaveStruct stSlave =
 	MOD_FRAME,
 	0,
 	0,
-	200,
+	5,
 	0,
 	ucRevBuf,
 	0,
@@ -88,7 +88,6 @@ static void ModSlaveReceive(void)
 	
 	stSlave.ucmodstate = MOD_FRAME;
 	if(sg_tQueue.u8Cnt < MOD_SLAVE_SIZE_MIN) return;
-	
 	while( sg_tQueue.u8Cnt > 0 )
 	{
 		Queue_Pop(&sg_tQueue,&ucdata);		
@@ -108,7 +107,7 @@ static void ModSlaveReceive(void)
 					break;
 				
 				case MOD_FUNC_WRITE_SINGLE_REGISTER:				
-					uclen = 10;
+					uclen = 8;
 					break;
 				
 				case MOD_FUNC_WRITE_MULTIPLE_REGISTERS:
@@ -247,6 +246,7 @@ static void SlaveSend(void)
 ******************************************************************************/
 static void SlaveInit(void)
 {
+	SlaveFuncInit();
 	ModSlaveDispath(ModSlaveReceive);
 }
 
@@ -266,10 +266,9 @@ static void ModSlavePoll(void)
 ******************************************************************************/
 void ModSlaveInit(void)
 {
-	SlaveInit();
-	
+	SlaveInit();	
 	Device.Usart3.Register(Receive);
 	Device.Systick.Register(100,ModSalveTimeExpire);
-	Device.Systick.Register(100,ModSlavePoll);
+	Device.Systick.Register(10,ModSlavePoll);
 }
 

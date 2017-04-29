@@ -4,11 +4,11 @@
 #include "type_def.h"
 
 /* ----------------------- Defines ------------------------------------------*/
-#define MOD_ADDRESS_SLAVE         		( 0xC9 )    
+#define MOD_ADDRESS_SLAVE         		( 0x01 )    
 #define MOD_SLAVE_ADDRESS_MIN          	( 1 )    
 #define MOD_SLAVE_ADDRESS_MAX          	( 247 )  
 #define MOD_SLAVE_SIZE_MAX				( 250 )
-#define MOD_SLAVE_SIZE_MIN             	( 8 )
+#define MOD_SLAVE_SIZE_MIN             	( 7 )
 
 /* ----------------------- Typedefs ------------------------------------------*/
 typedef struct _Slave

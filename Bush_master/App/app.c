@@ -1,10 +1,7 @@
 #include "app.h"
-#include "data.h"
+#include "appdata.h"
 #include "io.h"
 APPdata  APP_Data;
-APPtask  APP_Task;
-Dataall  Data_All ;
-
 //计算spi累加和
 static uint8 SPI_CheckSum(uint8 *buf,uint8 cnt)
 {
@@ -16,13 +13,84 @@ static uint8 SPI_CheckSum(uint8 *buf,uint8 cnt)
     }
 	return sum;
 }
+static void Task_Data_Process(void)
+{
+	if(Data.stAerkate.usOnoffMode==0x01)
+	{
+		APP_Data.Set_CMD.OpenSwitch=1;
+		APP_Data.Set_CMD.Condition_OpenSwitch=1;
+	}
+	else
+	{
+		APP_Data.Set_CMD.OpenSwitch=0;
+		APP_Data.Set_CMD.Condition_OpenSwitch=0;
+	}
+	if(Data.stAerkate.usHotCoolMode==0x01)
+	{
+		APP_Data.Set_CMD.ConditionMode=3;//制冷	
+	}
+	else  if(Data.stAerkate.usHotCoolMode==0x02)
+	{
+		APP_Data.Set_CMD.ConditionMode=4;//制热
+	}
+	else  if(Data.stAerkate.usHotCoolMode==0x00)
+	{
+		APP_Data.Set_CMD.ConditionMode=5;//通风
+	}	
+	if(Data.stAerkate.usFanSpeed==0x00)
+	{
+		APP_Data.Set_CMD.WindSpeed=1;
+	}
+	else if(Data.stAerkate.usFanSpeed==0x01)
+	{
+		APP_Data.Set_CMD.WindSpeed=2;
+	}
+	else if(Data.stAerkate.usFanSpeed==0x02)
+	{
+		APP_Data.Set_CMD.WindSpeed=3;
+	}
+	//空调温度设定
+	APP_Data.Set_Parameter.Temperature=Data.stAerkate.usTempture;;
+	if(Data.stAerkate.usXinFeng==0x01)
+	{
+		APP_Data.Set_CMD.XinFeng_Flag=1;
+	}
+	else 
+	{
+		APP_Data.Set_CMD.XinFeng_Flag=0;
+	}
+	if(Data.stAerkate.usElecHeating==0x01)
+	{//暂时不开放
+		APP_Data.Set_CMD.XinFeng_Heat_Flag=0;
+	}
+	else
+	{
+		APP_Data.Set_CMD.XinFeng_Heat_Flag=0;
+	}
+	if(Data.stAerkate.usHumidity==0x01)
+	{
+		if(APP_Data.Set_CMD.ConditionMode==4)//如果是制热模式才能加湿
+		{
+			APP_Data.Set_CMD.Humidity_Flag=1;//加湿
+		}
+		
+	}
+	else if(Data.stAerkate.usHumidity==0x02)
+	{
+		APP_Data.Set_CMD.Humidity_Flag=2;//除湿
+	}
+	else if(Data.stAerkate.usHumidity==0x00)
+	{
+		APP_Data.Set_CMD.Humidity_Flag=0;//不加湿不除湿
+	}
+}
+uint8  rbuf[26];
 static void Task_Air_Condition(void)
 {
 	uint8  i = 0;
 	uint8  temp = 0;
 	uint8  temp1 = 0;
 	uint8  wbuf[26];
-	uint8  rbuf[26];	
 
 	wbuf[0]  = 0xa5;	 
 	wbuf[1]  = 0x48;
@@ -44,7 +112,7 @@ static void Task_Air_Condition(void)
 		  temp &=~0x6a;//高风
 		  temp |= 0x20;
 	}
-	if(APP_Data.Set_CMD.WindSpeed==1)//开机
+	if(APP_Data.Set_CMD.Condition_OpenSwitch==1)//开机
 	{
 		 temp=temp+0x02;
 	}
@@ -167,104 +235,31 @@ static void Task_Air_Condition(void)
 		}
 
 }
-static void Task_Data_Process(void)
-{
-	if(Data_All.Mode==Host_Mode)
-	{
-		
-	}
-	else if(Data_All.Mode==Slave_Mode)
-	{
-		if(Data_All.Slave_Data.StatusH&0x04)
-		{
-			APP_Data.Set_CMD.OpenSwitch=1;
-		}
-		else
-		{
-			APP_Data.Set_CMD.OpenSwitch=0;
-		}
-		if(Data_All.Slave_Data.StatusH&0x02)
-		{
-			APP_Data.Set_CMD.ConditionMode=0;
-		}
-		else 
-		{
-			APP_Data.Set_CMD.ConditionMode=5;
-		}
-		if(Data_All.Slave_Data.StatusH&0x01)
-		{
-			APP_Data.Set_CMD.XinFeng_Heat_Flag=1;
-		}
-		else 
-		{
-			APP_Data.Set_CMD.XinFeng_Heat_Flag=0;
-		}
-		if(((Data_All.Slave_Data.StatusL&0x80)==1)&&((Data_All.Slave_Data.StatusL&0x40)==0))
-		{
-			APP_Data.Set_CMD.ConditionMode=3;
-		}
-		else if(((Data_All.Slave_Data.StatusL&0x80)==0)&&((Data_All.Slave_Data.StatusL&0x40)==1))
-		{
-			APP_Data.Set_CMD.ConditionMode=4;
-		}
-		else
-		{
-			APP_Data.Set_CMD.ConditionMode=5;
-		}
-		if(((Data_All.Slave_Data.StatusL&0x20)==1)&&((Data_All.Slave_Data.StatusL&0x10)==1))
-		{
-			APP_Data.Set_CMD.XinFeng_Flag=1;
-		}
-		else
-		{
-			APP_Data.Set_CMD.XinFeng_Flag=0;
-		}
-		if(((Data_All.Slave_Data.StatusL&0x08)==1)&&((Data_All.Slave_Data.StatusL&0x04)==0))
-		{
-			APP_Data.Set_CMD.Humidity_Flag=1;
-		}
-		else if(((Data_All.Slave_Data.StatusL&0x08)==0)&&((Data_All.Slave_Data.StatusL&0x04)==1))
-		{
-			APP_Data.Set_CMD.Humidity_Flag=2;
-		}
-		else
-		{
-			APP_Data.Set_CMD.XinFeng_Flag=0;
-		}
-		if(((Data_All.Slave_Data.StatusL&0x02)==1)&&((Data_All.Slave_Data.StatusL&0x01)==1))
-		{
-			APP_Data.Set_CMD.WindSpeed=1;
-		}
-		else if(((Data_All.Slave_Data.StatusL&0x02)==1)&&((Data_All.Slave_Data.StatusL&0x01)==0))
-		{
-			APP_Data.Set_CMD.WindSpeed=2;
-		}
-		else if(((Data_All.Slave_Data.StatusL&0x02)==0)&&((Data_All.Slave_Data.StatusL&0x01)==1))
-		{
-			APP_Data.Set_CMD.WindSpeed=3;
-		}
 
-	}
-	else if(Data_All.Mode==GUI_Mode)
-	{
-		
-	}
-}
 static void Task_XinFeng(void)
 {
 	if(APP_Data.Set_CMD.XinFeng_Flag==1)
-	{
+	{		
+		FRESH_AIR_ON;
+		EXHAUST_AIR_ON ;
+		//排风阀开
+		EXHAUST_AIR_POS_ON;
+		EXHAUST_AIR_NEG_OFF;
+		//新风阀开
+		FRESH_AIR_POS_ON;
+		FRESH_AIR_NEG_OFF;
+		Data.stAerkate.usXinFeng=1;
 		APP_Data.Task_sta.XinFeng_sta=1;
 		if(APP_Data.Set_CMD.XinFeng_Heat_Flag==1)
 		{
-			FRESH_AIR_ON;
-			EXHAUST_AIR_ON ;
+			AIR_ELECTRIC_HEAT_ON ;
+			Data.stAerkate.usElecHeating=1;
 			APP_Data.Task_sta.XinFeng_Heat_sta=1;
 		}
 		else
 		{
-			FRESH_AIR_OFF;
-			EXHAUST_AIR_OFF;
+			AIR_ELECTRIC_HEAT_OFF;
+			Data.stAerkate.usElecHeating=0;
 			APP_Data.Task_sta.XinFeng_Heat_sta=0;
 		}
 	}
@@ -272,27 +267,37 @@ static void Task_XinFeng(void)
 	{
 		FRESH_AIR_OFF;
 		EXHAUST_AIR_OFF;
+		//排风阀关
+		EXHAUST_AIR_POS_OFF;
+		EXHAUST_AIR_NEG_ON;
+		//新风阀关
+		FRESH_AIR_POS_OFF;
+		FRESH_AIR_NEG_ON;
+		Data.stAerkate.usXinFeng=0;
 		APP_Data.Task_sta.XinFeng_sta=0;
 	}
 }
 static void Task_Humidity(void)
 {
 	if(APP_Data.Set_CMD.Humidity_Flag==1)
-	{
+	{	
 		HUMIDIFIER_ON;
-		RESERVED2_OFF;//备用二为除湿
+		DHUMIDIFIER_OFF;
+		Data.stAerkate.usHumidity=1;
 		APP_Data.Task_sta.Humidity_sta=1;
 	}
 	else if(APP_Data.Set_CMD.Humidity_Flag==2)
 	{
 		HUMIDIFIER_OFF;
-		RESERVED2_ON;
+		DHUMIDIFIER_ON;
+		Data.stAerkate.usHumidity=2;
 		APP_Data.Task_sta.Humidity_sta=2;
 	}
 	else
 	{
 		HUMIDIFIER_OFF;
-		RESERVED2_OFF;
+		DHUMIDIFIER_OFF;
+		Data.stAerkate.usHumidity=0;
 		APP_Data.Task_sta.Humidity_sta=0;
 	}
 }
@@ -300,22 +305,52 @@ static void Task_Drain_PUMP(void)
 {
 	if(APP_Data.Set_CMD.Drain_Pump_Flag==1)
 	{
-		//DRAIN_PUMP_ON;
-		RESERVED1_ON;
+		DRAIN_PUMP_ON;
 		APP_Data.Task_sta.Drain_PUMP_sta=1;
 	}
 	else
 	{
-		//DRAIN_PUMP_OFF;
-		RESERVED1_OFF;
+		DRAIN_PUMP_OFF;
 		APP_Data.Task_sta.Drain_PUMP_sta=0;
 	}
 }
-void APP_init(void)
+static void Task_Close(void)
 {
-	APP_Task.Data_Process=Task_Data_Process;
-	APP_Task.Air_Condition=Task_Air_Condition;
-	APP_Task.Drain_PUMP =Task_Drain_PUMP;
-	APP_Task.XinFeng=Task_XinFeng;
-	APP_Task.Humidity=Task_Humidity;
+	APP_Data.Set_CMD.Condition_OpenSwitch=0;//关闭空调，返回状态是无
+	FRESH_AIR_OFF;
+	FRESH_AIR_POS_OFF;
+	FRESH_AIR_NEG_OFF;
+	EXHAUST_AIR_OFF;
+	EXHAUST_AIR_NEG_OFF;
+	EXHAUST_AIR_POS_OFF;
+
+	APP_Data.Task_sta.XinFeng_sta=0;
+	Data.stAerkate.usXinFeng=0;
+	HUMIDIFIER_OFF;
+	DHUMIDIFIER_OFF;
+	APP_Data.Task_sta.Humidity_sta=0;
+	Data.stAerkate.usHumidity=0;
+	DRAIN_PUMP_OFF;
+	APP_Data.Task_sta.Drain_PUMP_sta=0;
+}
+void APP_Init(void)
+{
+	//Parameter Init
+	Device.Systick.Register(250,Task_Air_Condition);
+}
+void APP_Run(void)
+{
+	Task_Data_Process();
+	//Task_Air_Condition();
+	if(APP_Data.Set_CMD.OpenSwitch==1)
+	{
+		
+		Task_Drain_PUMP();
+		Task_XinFeng();
+		Task_Humidity();
+	}
+	else
+	{
+        Task_Close();
+	}
 }

@@ -51,19 +51,8 @@ typedef struct APP_data
 	
 }APPdata;
 
-typedef struct APP_Task
-{
-		void *Data_Process;//数据处理函数
-		void *XinFeng;		//新风控制函数
-		void *Humidity;  //加湿除湿控制函数
-		void *Drain_PUMP; //排水泵控制函数
-		void *Air_Condition;//空调控制函数
-	
-}APPtask;//系统控制函数集合	
-extern APPdata  APP_Data;
-extern APPtask  APP_Task;
-extern void APP_init(void);
-
+void APP_Init(void);
+void APP_Run(void);
 #ifdef __cplusplus
 }
 #endif

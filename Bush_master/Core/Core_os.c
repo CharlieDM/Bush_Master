@@ -4,8 +4,8 @@
 #include "Core_Event.h"
 #include "Core_app.h"
 #include "Core_os.h"
-
-static PF_POLL   sg_pfPoll   = NULL;
+#include "app.h"
+static PF_POLL   sg_pfPoll   = APP_Run;
 static EventStruct sg_tEvt = {NULL};
 static EventStruct *sg_ptEvt = &sg_tEvt;
 extern PF_TASK_PROCESS cg_apfTaskFn[];
@@ -23,6 +23,8 @@ uint8 Os_Init(void)
 	
     /* Init event mechanism */
     Event_Init();
+	
+	APP_Init();
     
     /* Init all tasks */
 	/*
@@ -55,10 +57,8 @@ void Os_Run(void)
             sg_ptEvt->u8Task = TASK_NO_TASK;                      
             sg_ptEvt = &sg_tEvt;                                    
          }
-
 		/* run the periodic task */
 		Device.Systick.Run();
-
 		/* aways running task  */
 		if (sg_pfPoll)
 		{

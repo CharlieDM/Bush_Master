@@ -6,7 +6,7 @@ extern "C" {
 #endif
 #include "type_def.h"
 
-typedef struct Data
+typedef struct APP_Data
 {
 	struct GUI_data
 	{ 
@@ -25,9 +25,15 @@ typedef struct Data
 	
 	struct Slave_data
 	{
-		 uint16 StatusH;
-		 uint16 StatusL;
-		 uint8  Status_Flag;  
+		uint16 OnoffMode;
+		uint16 HotCoolMode;
+		uint16 FanSpeed; 
+		uint16 Tempture;
+		uint16 XinFeng;
+		uint16 AirExhaust;
+		uint16 ElecHeating;
+		uint16 Humidity;
+		uint16 Id;		
 	}Slave_Data;
 	
   uint8  Mode;//数据模式	

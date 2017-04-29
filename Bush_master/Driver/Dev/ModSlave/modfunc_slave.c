@@ -22,9 +22,10 @@ void SlaveFuncInit(void)
 
 /******************************************************************************
 * Name       : eMODException eModSlaveReadRegister( uint8 * pucFrame, uint16 usLength )
-* Function   : CMD:0x03
+* Function   : CMD:0x06
 ******************************************************************************/
-eMODException eModSlaveReadRegister( uint8 * pucFrame, uint16 usLength )
+
+eMODException  eModSlaveWriteSingleRegister( uint8 * pucFrame, uint16 usLength )
 {
 	uint16 usaddr = 0;
 	if(usLength < MOD_SLAVE_SIZE_MIN) return MOD_EX_ILLEGAL_DATA_ADDRESS;
@@ -36,9 +37,9 @@ eMODException eModSlaveReadRegister( uint8 * pucFrame, uint16 usLength )
 
 /******************************************************************************
 * Name       : eMODException eModSlaveWriteSingleRegister( uint8 * pucFrame, uint16 usLength )
-* Function   : CMD:0x06
+* Function   : CMD:0x03
 ******************************************************************************/
-eMODException eModSlaveWriteSingleRegister( uint8 * pucFrame, uint16 usLength )
+eMODException eModSlaveReadRegister( uint8 * pucFrame, uint16 usLength )
 {
 	uint8 usaddr = 0;
 	if(usLength < MOD_SLAVE_SIZE_MIN) return MOD_EX_ILLEGAL_DATA_ADDRESS;

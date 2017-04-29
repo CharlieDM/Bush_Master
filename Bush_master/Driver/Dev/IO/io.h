@@ -47,11 +47,11 @@
 #define EXHAUST_AIR_NEG_ON     	Device.Gpio.DoutOn(GPIO_PORT_DOUT2,EXHAUST_AIR_NEG) 
 #define EXHAUST_AIR_NEG_OFF    	Device.Gpio.DoutOff(GPIO_PORT_DOUT2,EXHAUST_AIR_NEG) 
 
-#define RESERVED1_ON           	Device.Gpio.DoutOn(GPIO_PORT_DOUT2,RESERVED1) 
-#define RESERVED1_OFF          	Device.Gpio.DoutOff(GPIO_PORT_DOUT2,RESERVED1) 
+#define DRAIN_PUMP_ON           Device.Gpio.DoutOn(GPIO_PORT_DOUT2,RESERVED1) 
+#define DRAIN_PUMP_OFF          Device.Gpio.DoutOff(GPIO_PORT_DOUT2,RESERVED1) 
 
-#define RESERVED2_ON           	Device.Gpio.DoutOn(GPIO_PORT_DOUT2,RESERVED2) 
-#define RESERVED2_OFF         	Device.Gpio.DoutOff(GPIO_PORT_DOUT2,RESERVED2) 
+#define DHUMIDIFIER_ON          Device.Gpio.DoutOn(GPIO_PORT_DOUT2,RESERVED2) 
+#define DHUMIDIFIER_OFF         Device.Gpio.DoutOff(GPIO_PORT_DOUT2,RESERVED2) 
 
 /* ----------------------- Functions ---------------------------------*/
 uint16 ReadIO(void);

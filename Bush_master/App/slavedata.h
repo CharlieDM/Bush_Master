@@ -6,7 +6,6 @@
 
 typedef struct _Aerkate
 {
-	uint16 usId;
 	uint16 usOnoffMode;
 	uint16 usHotCoolMode;
 	uint16 usFanSpeed; 
@@ -15,6 +14,7 @@ typedef struct _Aerkate
 	uint16 usAirExhaust;
 	uint16 usElecHeating;
 	uint16 usHumidity;
+	uint16 usId;
 }AerkateStruct; 
 
 #endif 

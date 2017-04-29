@@ -25,8 +25,8 @@ typedef uint8 (*PF_TASK_PROCESS)(uint8 u8Evt, void *pPara);
 #define TRUE					(1)
 #define FALSE					(0)
 
-#define Enter_Critical()		//__disable_irq()
-#define Leave_Critical()		//__denable_irq()
+#define Enter_Critical()		__set_PRIMASK(1)//__disable_irq()
+#define Leave_Critical()		__set_PRIMASK(0)//__denable_irq()
 
 #ifdef __cplusplus
 }

@@ -11,10 +11,10 @@ DeviceStruct Device;
 
 uint8 HAL_Init(void)
 {
+	Hal_SystickInit();
 	Hal_Uart5_Init();
 	Hal_Usart3_Init();
-	Hal_Spi_Init();
-	Hal_SystickInit();
+	Hal_Spi_Init();	
 	Hal_GpioInit();
 	ModSlaveInit();
 	

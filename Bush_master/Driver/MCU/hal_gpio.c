@@ -29,13 +29,13 @@ void Hal_GpioInit(void)
 	GPIO_InitStructure.GPIO_Pin   = HUMIDIFIER|ELECTRIC_HEAT3;
 	GPIO_Init(GPIO_PORT_DOUT3, &GPIO_InitStructure);
 
-	/* One Group In */
+	/* One Group In
 	RCC_APB2PeriphClockCmd(RCC_DIN_GROUP1, ENABLE);
  	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
  	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN_FLOATING;	 
  	GPIO_InitStructure.GPIO_Pin   = GPIO_PIN_IN0|GPIO_PIN_IN6|GPIO_PIN_IN7;
  	GPIO_Init(GPIO_PORT_DIN_GROUP1, &GPIO_InitStructure);
-
+ */
 	/* Two Group IN */
 	RCC_APB2PeriphClockCmd(RCC_DIN_GROUP2, ENABLE);
  	GPIO_InitStructure.GPIO_Pin   = GPIO_PIN_IN1|GPIO_PIN_IN2|GPIO_PIN_IN3
