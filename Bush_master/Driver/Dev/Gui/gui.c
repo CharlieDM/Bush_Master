@@ -31,7 +31,7 @@ GuiStruct stGui =
 	GUI_ADDRESS,
 	GUI_INIT,
 	0,
-	100,
+	200,
 	0,
 	ucRevBuf,
 	0,
@@ -96,7 +96,7 @@ static void GuiReceive(void)
 	uint8 uclen = 0;
 	
 	stGui.ucstate = GUI_FRAME;
-	if(stGui.ucrevlen < GUI_SIZE_MIN) return;
+	if(sg_tQueue.u8Cnt < GUI_SIZE_MIN) return;
 	
 	while( sg_tQueue.u8Cnt > 0 )
 	{
@@ -225,6 +225,7 @@ static void GuiError(void)
 ******************************************************************************/
 static void GuiSend(void)
 {
+	uint8  ucI = 0;
 	uint16 usCRC = 0;
     if(stGui.ucsendlen > 0)
     {	
@@ -232,6 +233,10 @@ static void GuiSend(void)
         stGui.pucsendBuf[stGui.ucsendlen-2] = usCRC & 0xFF;
         stGui.pucsendBuf[stGui.ucsendlen-1] = usCRC>>8;
 		Device.Usart3.Send(stGui.pucsendBuf, stGui.ucsendlen);
+		for(ucI=0; ucI<stGui.ucsendlen;ucI++)
+		{
+			stGui.pucsendBuf[ucI] = 0;
+		}
         stGui.ucsendlen = 0;
     }	
 }
@@ -252,10 +257,11 @@ static void GuiPoll(void)
 ******************************************************************************/
 void GuiInit(void)
 {
-	GuiDispath(GuiReceive);
+	GuiDispath(GuiReceive);	
+	GuiFuncInit();
 	
 	Device.Usart3.Register(Receive);
 	Device.Systick.Register(100,GuiTimeExpire);
-	Device.Systick.Register(100,GuiPoll);
+	Device.Systick.Register(10,GuiPoll);
 }
 

@@ -37,5 +37,5 @@ typedef struct _Gui
 
 /* ----------------------- Globel Var ------------------------------------------*/
 extern GuiStruct stGui;
-
+void GuiInit(void);
 #endif

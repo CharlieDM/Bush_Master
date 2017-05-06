@@ -1,6 +1,7 @@
 #ifndef __MODBUS_HOST_H
 #define __MODBUS_HOST_H
 
+#include "type_def.h"
 /* ----------------------- Defines ------------------------------------------*/
 #define MOD_ADDRESS_HOST        		( 0xF0 )    
 #define MOD_HOST_ADDRESS_MIN          	( 1 )    
@@ -31,5 +32,5 @@ typedef struct _Host
 }HostStruct; 
 
 extern HostStruct stHost;
-
+void ModHostInit(void);
 #endif

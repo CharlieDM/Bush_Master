@@ -23,7 +23,8 @@ static xMODFuncHandler xFuncHandler[] =
 
 static xModCmd xCmdHanler[] =
 {
-	{0x08,{0x01, 0x03, 0x00, 0x00, 0x00, 0x2C, 0x44, 0x17 }}
+	{0x08,{0x01, 0x03, 0x00, 0x00, 0x00, 0x19, 0x84, 0x00}},
+	{0x08,{0x02, 0x03, 0x00, 0x00, 0x00, 0x19, 0x84, 0x33}}
 	//{0x07,{0x02,0x03,0x04,0x00,0x00,0x11,0x22}},
 };
 static uint8 sg_au8Queue[MOD_HOST_SIZE_MAX] = {0};
@@ -34,13 +35,13 @@ static uint16 ucTimes = 0;
 static pFunc pfStateFunc = NULL;
 HostStruct stHost =
 {
-	0x00,									// read address
+	0x00,									//read address
 	0x00,									//slave id
 	MOD_INIT,								//modbus state
 	MOD_FUNC_READ_MULTIPLE_REGISTER,		//cmd type
-	10,										//expire  time
+	200,									//expire  time
 	0,										//time out state
-	0,										//read cmd pos
+	1,										//read cmd pos
 	0,										//set cmd pos
 	0,										//device numbers
 	0,										//frame len
@@ -82,7 +83,6 @@ static void ModHostTimeExpire(void)
 static void ModHostDispath(pFunc func)
 {
 	ucTimes = 0;
-	stHost.uctimeout = 0;
 	pfStateFunc = func;
 }
 
@@ -108,7 +108,7 @@ static void ModHostSendCmd(void)
 	}
 	else
 	{
-		Device.Usart3.Send(xCmdHanler[ucRCmd].pcBuf,xCmdHanler[ucRCmd].ucLen);
+		Device.Usart5.Send(xCmdHanler[ucRCmd].pcBuf,xCmdHanler[ucRCmd].ucLen);
 		stHost.ucmodcmd = MOD_FUNC_READ_MULTIPLE_REGISTER;
 		stHost.ucid = xCmdHanler[ucRCmd].pcBuf[0];
 		stHost.usaddr = xCmdHanler[ucRCmd].pcBuf[2]*256 + xCmdHanler[ucRCmd].pcBuf[3];
@@ -156,7 +156,9 @@ static void ModHostReceive(void)
 			switch(ucdata)
 			{
 				case MOD_FUNC_READ_MULTIPLE_REGISTER:
-					uclen = 8;
+					Queue_Pop(&sg_tQueue,&ucdata);	
+					ucFrameBuf[ucpos++] = ucdata;
+					uclen = 5 + ucdata;
 					break;
 				
 				case MOD_FUNC_WRITE_SINGLE_REGISTER:
@@ -229,6 +231,7 @@ static void ModHostExec(void)
 	
 	if(!eException)
 	{
+		/*
 		if(stHost.ucscmdpos > 0)
 		{
 			stHost.ucscmdpos = 0;
@@ -237,6 +240,9 @@ static void ModHostExec(void)
 		{
 			stHost.ucrcmdpos++;
 		}
+		*/
+		stHost.ucrcmdpos++;
+		if(stHost.ucrcmdpos >= 2) stHost.ucrcmdpos = 0;
 		ModHostDispath(ModHostSendCmd);
 	}
 	else
@@ -305,7 +311,7 @@ void ModHostInit(void)
 {
 	HostInit();
 	
-	Device.Usart3.Register(Receive);
+	Device.Usart5.Register(Receive);
 	Device.Systick.Register(100,ModHostTimeExpire);
 	Device.Systick.Register(100,ModHostPoll);
 }

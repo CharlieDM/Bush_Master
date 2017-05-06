@@ -35,7 +35,7 @@ eMODException eModHostReadRegister( uint8 * pucFrame, uint16 usLength )
 	if(pucFrame[2] == MOD_NACK_HEAD1 && pucFrame[3] == MOD_NACK_HEAD2) return MOD_EX_ILLEGAL_DATA_ADDRESS;
 
 	/* Deal the data */
-	ucid = pucFrame[0];
+	ucid = pucFrame[0]-1;
 	uslen = pucFrame[2];
 	
 	if( ucid < 100)

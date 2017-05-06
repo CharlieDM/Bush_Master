@@ -7,10 +7,10 @@
 /* ----------------------- Macro definitions ---------------------------------*/
 
 #define GUI_SENSOR_ONE			( 0x02BC)
-#define GUI_SENSOR_TWO			( 0x02BD)
-#define GUI_SENSOR_THREE		( 0x02BE)
-#define GUI_SENSOR_FOUR			( 0x02BF)
-#define GUI_SENSOR_FIVE			( 0x02C0)
+#define GUI_SENSOR_TWO			( 0x02D5)
+#define GUI_SENSOR_THREE		( 0x02EE)
+#define GUI_SENSOR_FOUR			( 0x0307)
+#define GUI_SENSOR_FIVE			( 0x0320)
 
 /* ----------------------- Type definitions ---------------------------------*/
 
@@ -36,4 +36,5 @@ eGUIException eGuiReadRegister( uint8 * pucFrame, uint16 usLength );
 eGUIException eGuiWriteSingleRegister( uint8 * pucFrame, uint16 usLength );
 eGUIException eGuiWriteMultiRegister( uint8 * pucFrame, uint16 usLength );
 
+void GuiFuncInit(void);
 #endif

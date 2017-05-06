@@ -28,7 +28,7 @@ eGUIException eGuiReadRegister( uint8 * pucFrame, uint16 usLength )
 {
 	uint16 usaddr = 0;
 	uint16 uslen = 0;
-	
+	uint16 uspos = 0;
 	/* Check data validation */
 	if(usLength < GUI_SIZE_MIN) return GUI_EX_ILLEGAL_DATA_ADDRESS;
 	
@@ -45,10 +45,11 @@ eGUIException eGuiReadRegister( uint8 * pucFrame, uint16 usLength )
 		case GUI_SENSOR_THREE:
 		case GUI_SENSOR_FOUR:
 		case GUI_SENSOR_FIVE:
+			uspos = 3+(usaddr-GUI_SENSOR_ONE);
 			stGui.pucsendBuf[0] = stGui.ucid;
 			stGui.pucsendBuf[1] = 0x04;
 			stGui.pucsendBuf[2] = uslen*2;
-			U16CpyToU8(&stGui.pucsendBuf[3],((uint16 *)GuiData.pvSensor)+(usaddr-GUI_SENSOR_ONE)/25,uslen);
+			U16CpyToU8(&stGui.pucsendBuf[3],((uint16 *)GuiData.pvSensor)+uspos,uslen);
 			stGui.ucsendlen = 5 + uslen*2;
 			break;
 
