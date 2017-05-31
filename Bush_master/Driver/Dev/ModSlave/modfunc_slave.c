@@ -47,7 +47,7 @@ eMODException eModSlaveReadRegister( uint8 * pucFrame, uint16 usLength )
 	U16CpyToU8(&pucFrame[4],((uint16*)SlaveData.pvAerkate)+usaddr,1);
 
 	stSlave.ucSendBuf[0] = pucFrame[0];  
-	stSlave.ucSendBuf[1] = pucFrame[1];
+	stSlave.ucSendBuf[1] = 0x06;
 	stSlave.ucSendBuf[2] = pucFrame[2];
 	stSlave.ucSendBuf[3] = pucFrame[3];
 	stSlave.ucsendlen = 8;

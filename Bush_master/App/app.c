@@ -77,7 +77,10 @@ static void Task_Data_Process(void)
 	}
 	else if(Data.stAerkate.usHumidity==0x02)
 	{
-		APP_Data.Set_CMD.Humidity_Flag=2;//除湿
+		if(APP_Data.Set_CMD.ConditionMode==3)//制冷模式下才可以除湿
+		{
+			APP_Data.Set_CMD.Humidity_Flag=2;//除湿
+		}
 	}
 	else if(Data.stAerkate.usHumidity==0x00)
 	{
@@ -135,7 +138,7 @@ static void Task_Air_Condition(void)
 		temp |= 0x80;
 	}	
 	else if(((APP_Data.Set_CMD.ConditionMode==5)&&((APP_Data.Set_CMD.XinFeng_Flag==1)||(APP_Data.Set_CMD.JingHua_Flag==1)))||(APP_Data.Set_CMD.ConditionMode ==0))
-	{//即不制冷也不制热，且风速不为零，那么改为通风模式,或者是自动清华下的通风就是通风模式
+	{//即不制冷也不制热，且风速不为零，那么改为通风模式,或者是自动净化下的通风就是通风模式
 		//通风模式
 		temp &=~0xe0;
 		temp |= 0x60;
@@ -225,14 +228,26 @@ static void Task_Air_Condition(void)
 			temp1=0x01;
 			for(i=0;i<8;i++)
 			{
-				if(rbuf[20]&temp1)
+				if(rbuf[21]&0x02)//byte21
+				{
+					APP_Data.Condition_Back.Fault_Mode=23;
+					break;
+				}
+				else if(rbuf[20]&temp1)//byte20
 				{//空调错误类型，只记录第一个错误类型
 					APP_Data.Condition_Back.Fault_Mode=11+i;
 					break;
 				}
+				else if(rbuf[9]&temp1)//byte9
+				{
+					//空调错误类型，只记录第一个错误类型
+					APP_Data.Condition_Back.Fault_Mode=17+i;
+					break;
+				}
 				temp1=temp1<<1;			
 			}
-		}
+		 }
+		Data.stAerkate.usFaultMode=APP_Data.Condition_Back.Fault_Mode;
 
 }
 

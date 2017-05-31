@@ -11,7 +11,7 @@ typedef struct _Aerkate
 	uint16 usFanSpeed; 
 	uint16 usTempture;
 	uint16 usXinFeng;
-	uint16 usAirExhaust;
+	uint16 usFaultMode;
 	uint16 usElecHeating;
 	uint16 usHumidity;
 	uint16 usId;
