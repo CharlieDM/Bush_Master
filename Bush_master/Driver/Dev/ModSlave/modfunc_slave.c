@@ -41,16 +41,17 @@ eMODException  eModSlaveWriteSingleRegister( uint8 * pucFrame, uint16 usLength )
 ******************************************************************************/
 eMODException eModSlaveReadRegister( uint8 * pucFrame, uint16 usLength )
 {
-	uint8 usaddr = 0;
+	uint8 usaddr = 0,ulen = 0;
 	if(usLength < MOD_SLAVE_SIZE_MIN) return MOD_EX_ILLEGAL_DATA_ADDRESS;
 	usaddr = pucFrame[2]*256+pucFrame[3];
-	U16CpyToU8(&pucFrame[4],((uint16*)SlaveData.pvAerkate)+usaddr,1);
+	ulen = pucFrame[4]*256+pucFrame[5];
+	U16CpyToU8(&stSlave.ucSendBuf[3],((uint16*)SlaveData.pvAerkate)+usaddr,ulen);
 
 	stSlave.ucSendBuf[0] = pucFrame[0];  
-	stSlave.ucSendBuf[1] = 0x06;
-	stSlave.ucSendBuf[2] = pucFrame[2];
-	stSlave.ucSendBuf[3] = pucFrame[3];
-	stSlave.ucsendlen = 8;
+	stSlave.ucSendBuf[1] = 0x03;
+	stSlave.ucSendBuf[2] = ulen*2;
+
+	stSlave.ucsendlen = 5+ulen*2;
 	return MOD_EX_NONE;
 }
 

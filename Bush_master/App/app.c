@@ -205,7 +205,6 @@ static void Task_Air_Condition(void)
 		}
 		//T1反馈温度值
 		 APP_Data.Condition_Back.Temperature_T1=rbuf[5];
-
 		if((rbuf[6]&0x20)&&(rbuf[6]&0x40))
 		{
 			APP_Data.Condition_Back.WindSpeed=1;//低速
@@ -238,17 +237,48 @@ static void Task_Air_Condition(void)
 					APP_Data.Condition_Back.Fault_Mode=11+i;
 					break;
 				}
-				else if(rbuf[9]&temp1)//byte9
+				else if(rbuf[9]==0xe1)//byte9
 				{
 					//空调错误类型，只记录第一个错误类型
-					APP_Data.Condition_Back.Fault_Mode=17+i;
+					APP_Data.Condition_Back.Fault_Mode=17;
+					break;
+				}
+				else if(rbuf[9]==0xe2)//byte9
+				{
+					//空调错误类型，只记录第一个错误类型
+					APP_Data.Condition_Back.Fault_Mode=18;
+					break;
+				}
+				else if(rbuf[9]==0xe3)//byte9
+				{
+					//空调错误类型，只记录第一个错误类型
+					APP_Data.Condition_Back.Fault_Mode=19;
+					break;
+				}
+				else if(rbuf[9]==0xe5)//byte9
+				{
+					//空调错误类型，只记录第一个错误类型
+					APP_Data.Condition_Back.Fault_Mode=20;
+					break;
+				}
+				else if(rbuf[9]==0xf2)//byte9
+				{
+					//空调错误类型，只记录第一个错误类型
+					APP_Data.Condition_Back.Fault_Mode=21;
+					break;
+				}
+				else if(rbuf[9]==0xf5)//byte9
+				{
+					//空调错误类型，只记录第一个错误类型
+					APP_Data.Condition_Back.Fault_Mode=22;
 					break;
 				}
 				temp1=temp1<<1;			
 			}
 		 }
-		Data.stAerkate.usFaultMode=APP_Data.Condition_Back.Fault_Mode;
-
+		 Data.stAerkate.usHotCoolMode=APP_Data.Condition_Back.Mode;
+		 Data.stAerkate.usTempture=APP_Data.Condition_Back.Temperature_T1;
+		 Data.stAerkate.usFaultMode=APP_Data.Condition_Back.Fault_Mode;
 }
 
 static void Task_XinFeng(void)
@@ -318,15 +348,101 @@ static void Task_Humidity(void)
 }
 static void Task_Drain_PUMP(void)
 {
-	if(APP_Data.Set_CMD.Drain_Pump_Flag==1)
+	static uint16 Last_Humidity = 2;//历史湿度记录，初始化的时候不能使改值位负数、
+	static uint8 Drain_PUMP_Fault=0;
+	static uint8 Drain_PUMP_NS_Fault_Flag=0;
+	static uint8 Drain_PUMP_NS_Flag=0;
+	static uint8 Drain_PUMP_NS_Count=0;
+	uint16   DIN_TEMP=0;
+	//加湿，和提升泵报警输入检测
+	if(APP_Data.Task_sta.Drain_PUMP_sta==1)
+	{
+		Drain_PUMP_NS_Count++;
+		if( Drain_PUMP_NS_Count>100)
+		{
+			Drain_PUMP_NS_Fault_Flag=1;
+		}
+		if( Drain_PUMP_NS_Count>180)
+		{
+			Drain_PUMP_NS_Count=0;
+			Drain_PUMP_NS_Flag=1;
+		}
+	}
+	else 
+	{
+		Drain_PUMP_NS_Count=0;
+		Drain_PUMP_NS_Fault_Flag=0;
+		Drain_PUMP_NS_Flag=0;
+	}
+	DIN_TEMP=0;//临时值清零
+	DIN_TEMP=ReadIO();
+	//提升泵	相关程序(排水泵)
+	if((DIN_TEMP&0x0800)==0)
 	{
 		DRAIN_PUMP_ON;
-		APP_Data.Task_sta.Drain_PUMP_sta=1;
 	}
 	else
 	{
 		DRAIN_PUMP_OFF;
+	}
+	if((((DIN_TEMP&0x0800)==0)||(APP_Data.Task_sta.Drain_PUMP_sta==1))&&(Drain_PUMP_Fault==0))
+	{	
+		APP_Data.Set_CMD.Drain_Pump_Flag=1;		
+		if(APP_Data.Task_sta.Drain_PUMP_sta==1)
+		{
+		   //提升泵工作100s之后还未断开开关信号，那么
+			if(Drain_PUMP_NS_Fault_Flag==1)
+			{
+				if((DIN_TEMP&0x0800)==0)
+				{
+					Drain_PUMP_Fault=1;
+					//提升泵只在空调制冷状况下才工作
+					if((APP_Data.Set_CMD.ConditionMode==1)||(APP_Data.Set_CMD.ConditionMode==3))
+					{
+						APP_Data.Set_CMD.Condition_OpenSwitch=0;//关闭空调外机工作
+					}
+				}
+				else
+				{
+					Drain_PUMP_Fault=0;
+					APP_Data.Set_CMD.Condition_OpenSwitch=1;
+				}
+			}
+			else if(Drain_PUMP_NS_Fault_Flag==0)
+			{
+				Drain_PUMP_Fault=0;
+			}
+			//提升泵工作周期180S时间到，此时如果为报错的话，正常情况下浮球开关量已经断开
+			if(Drain_PUMP_NS_Flag==1)
+			{
+				APP_Data.Set_CMD.Drain_Pump_Flag=0;
+			}
+		}
+	}
+	else
+	{
 		APP_Data.Task_sta.Drain_PUMP_sta=0;
+		APP_Data.Set_CMD.Drain_Pump_Flag=0;
+		if(DIN_TEMP&0x0800)//浮球断开
+			Drain_PUMP_Fault=0;
+	}		
+	if(APP_Data.Set_CMD.OpenSwitch==1)
+	{
+		if(APP_Data.Set_CMD.Drain_Pump_Flag==1)
+		{
+			DRAIN_PUMP_ON;
+			APP_Data.Task_sta.Drain_PUMP_sta=1;
+		}
+		else
+		{
+			DRAIN_PUMP_OFF;
+			APP_Data.Task_sta.Drain_PUMP_sta=0;
+		}
+    }
+	//如果无其他报警故障
+	if((Data.stAerkate.usFaultMode<10)&&(Drain_PUMP_Fault==1))
+	{
+		Data.stAerkate.usFaultMode=33;//系统提升泵故障
 	}
 }
 static void Task_Close(void)
@@ -351,21 +467,20 @@ static void Task_Close(void)
 void APP_Init(void)
 {
 	//Parameter Init
+	Device.Systick.Register(100,Task_Drain_PUMP);//水泵执行处理函数
 	Device.Systick.Register(250,Task_Air_Condition);
+	
 }
 void APP_Run(void)
 {
 	Task_Data_Process();
-	//Task_Air_Condition();
 	if(APP_Data.Set_CMD.OpenSwitch==1)
 	{
-		
-		Task_Drain_PUMP();
 		Task_XinFeng();
 		Task_Humidity();
 	}
 	else
 	{
-        Task_Close();
+        ;//Task_Close();
 	}
 }
