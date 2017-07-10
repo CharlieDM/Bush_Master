@@ -14,6 +14,7 @@ typedef struct _Aerkate
 	uint16 usFaultMode;
 	uint16 usElecHeating;
 	uint16 usHumidity;
+	uint16 usResTempture;
 	uint16 usId;
 }AerkateStruct; 
 

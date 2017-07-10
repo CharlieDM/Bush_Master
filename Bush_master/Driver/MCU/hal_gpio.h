@@ -24,7 +24,7 @@
 #define GPIO_PORT_DOUT2     GPIOD
 
 #define RESERVED2		    GPIO_Pin_10
-#define RESERVED1		    GPIO_Pin_11
+#define DRAIN_PUMP		    GPIO_Pin_11
 #define EXHAUST_AIR_NEG	    GPIO_Pin_12
 #define EXHAUST_AIR_POS	    GPIO_Pin_13
 #define FRESH_AIR_NEG		GPIO_Pin_14

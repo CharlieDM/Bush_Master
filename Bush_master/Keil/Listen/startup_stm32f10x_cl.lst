@@ -567,12 +567,11 @@ ARM Macro Assembler    Page 9
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend=.\output\startup_stm32f10x_cl.d -o.\output\startup_stm32f10x_cl.o 
--I"F:\工作AND学习\额外项目\2016.07.09 苏净集团整合\Aekater\trunk\Bush_master\Ke
-il\RTE" -I"H:\Program Files (x86)\Keil_v5\ARM\Pack\Keil\STM32F1xx_DFP\2.1.0" -I
-"H:\Program Files (x86)\Keil_v5\ARM\CMSIS\Include" --predefine="__UVISION_VERSI
-ON SETA 514" --predefine="STM32F10X_CL SETA 1" --list=.\listen\startup_stm32f10
-x_cl.lst ..\Cpu\CMSIS\CM3\DeviceSupport\ST\STM32F10x\startup\arm\startup_stm32f
-10x_cl.s
+-IC:\Users\Administrator\Desktop\Bush_Master.git\trunk\Bush_master\Keil\RTE -I"
+H:\Program Files (x86)\Keil_v5\ARM\Pack\Keil\STM32F1xx_DFP\2.1.0" -I"H:\Program
+ Files (x86)\Keil_v5\ARM\CMSIS\Include" --predefine="__UVISION_VERSION SETA 514
+" --predefine="STM32F10X_CL SETA 1" --list=.\listen\startup_stm32f10x_cl.lst ..
+\Cpu\CMSIS\CM3\DeviceSupport\ST\STM32F10x\startup\arm\startup_stm32f10x_cl.s
 
 
 

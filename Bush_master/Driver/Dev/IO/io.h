@@ -47,8 +47,8 @@
 #define EXHAUST_AIR_NEG_ON     	Device.Gpio.DoutOn(GPIO_PORT_DOUT2,EXHAUST_AIR_NEG) 
 #define EXHAUST_AIR_NEG_OFF    	Device.Gpio.DoutOff(GPIO_PORT_DOUT2,EXHAUST_AIR_NEG) 
 
-#define DRAIN_PUMP_ON           Device.Gpio.DoutOn(GPIO_PORT_DOUT2,RESERVED1) 
-#define DRAIN_PUMP_OFF          Device.Gpio.DoutOff(GPIO_PORT_DOUT2,RESERVED1) 
+#define DRAIN_PUMP_ON           Device.Gpio.DoutOn(GPIO_PORT_DOUT2,DRAIN_PUMP) 
+#define DRAIN_PUMP_OFF          Device.Gpio.DoutOff(GPIO_PORT_DOUT2,DRAIN_PUMP) 
 
 #define DHUMIDIFIER_ON          Device.Gpio.DoutOn(GPIO_PORT_DOUT2,RESERVED2) 
 #define DHUMIDIFIER_OFF         Device.Gpio.DoutOff(GPIO_PORT_DOUT2,RESERVED2) 
