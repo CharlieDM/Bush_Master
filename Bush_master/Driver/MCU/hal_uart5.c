@@ -77,12 +77,14 @@ static void Uart5_NVICConfig(void)
 static void Uart5_Send(uint8_t *TBuf, uint16_t _usLen)
 {
 	uint8_t i_com=0;
-	RS485_TX_EN(); 
+	RS485_TX_EN(); 	
+	//Device.Systick.Delay(1);
 	for(i_com=0;i_com<_usLen;i_com++)
 	{
 		USART_SendData(UART5,TBuf[i_com]);
 		while(USART_GetFlagStatus(UART5, USART_FLAG_TC) == RESET);
 	}
+	//Device.Systick.Delay(1);
 	RS485_RX_EN();
 }
 

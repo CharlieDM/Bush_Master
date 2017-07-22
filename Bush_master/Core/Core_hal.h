@@ -35,6 +35,7 @@ typedef struct Device
 	{
 		void (*Register)(uint8 timer,void(*Func)());
 		void (*Run)(void);
+		void (*Delay)(uint16_t nms);
 	}Systick;
 	
 }DeviceStruct;

@@ -18,7 +18,7 @@ uint8 HAL_Init(void)
 	Hal_Usart3_Init();
 	Hal_Spi_Init();	
 	Hal_GpioInit();
-	ModHostInit(); 
+	//ModHostInit(); 
 	//GuiInit();
 	ModSlaveInit();
 	return SW_OK;

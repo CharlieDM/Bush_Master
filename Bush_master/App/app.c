@@ -64,8 +64,8 @@ static void Task_Data_Process(void)
 		APP_Data.Set_CMD.XinFeng_Flag=0;
 	}
 	if(Data.stAerkate.usElecHeating==0x01)
-	{//暂时不开放
-		APP_Data.Set_CMD.XinFeng_Heat_Flag=0;
+	{
+		APP_Data.Set_CMD.XinFeng_Heat_Flag=1;
 	}
 	else
 	{
@@ -73,7 +73,7 @@ static void Task_Data_Process(void)
 	}
 	if(Data.stAerkate.usHumidity==0x01)
 	{
-		if(APP_Data.Set_CMD.ConditionMode==4)//如果是制热模式才能加湿
+		//if(APP_Data.Set_CMD.ConditionMode==4)//如果是制热模式才能加湿
 		{
 			APP_Data.Set_CMD.Humidity_Flag=1;//加湿
 		}
@@ -282,7 +282,10 @@ static void Task_Air_Condition(void)
 		 }
 		 Data.stAerkate.usHotCoolMode=APP_Data.Condition_Back.Mode;
 		 Data.stAerkate.usResTempture=APP_Data.Condition_Back.Temperature_T1;
-		 Data.stAerkate.usFaultMode=APP_Data.Condition_Back.Fault_Mode;
+		 if(APP_Data.Condition_Back.Fault_Mode > 0)
+		 {
+			Data.stAerkate.usFaultMode=APP_Data.Condition_Back.Fault_Mode;
+		 }
 }
 
 static void Task_XinFeng(void)
@@ -336,41 +339,51 @@ static void Task_Humidity(void)
 	if(APP_Data.Task_sta.Humidity_sta==1)
 	{
 		HUMIDIFIER_NS_Count++;
-		if(HUMIDIFIER_NS_Count>120)
+		if(HUMIDIFIER_NS_Count>120)//加湿两分钟
 		{
 			APP_Data.Set_CMD.Humidity_Flag=0;
+			HUMIDIFIER_NS_Count = 0;
 		}
 	}
-	if((APP_Data.Set_CMD.Humidity_Flag==1)&&((DIN_TEMP&0x0400)==0))
-	{	
-		HUMIDIFIER_ON;
-		DHUMIDIFIER_OFF;
-		Data.stAerkate.usHumidity=1;
-		APP_Data.Task_sta.Humidity_sta=1;
-		HUMIDIFIER_Fault=0;
-	}
-	else if(APP_Data.Set_CMD.Humidity_Flag==2)
-	{
-		HUMIDIFIER_OFF;
-		DHUMIDIFIER_ON;
-		Data.stAerkate.usHumidity=2;
-		APP_Data.Task_sta.Humidity_sta=2;
-	}
-	else if((DIN_TEMP&0x0400)==1)
+	
+	if((DIN_TEMP&0x0400) == 0x0400)
 	{
 		HUMIDIFIER_Fault=1;
+		HUMIDIFIER_OFF;
 	}
 	else
 	{
-		HUMIDIFIER_OFF;
-		DHUMIDIFIER_OFF;
-		Data.stAerkate.usHumidity=0;
-		APP_Data.Task_sta.Humidity_sta=0;
+		HUMIDIFIER_Fault=0;
+		if(Data.stAerkate.usFaultMode == 31)
+		{
+			Data.stAerkate.usFaultMode=0;
+		}
 	}
-	//如果无其他报警故障
-	if((Data.stAerkate.usFaultMode<10)&&(HUMIDIFIER_Fault==1))
+	
+	if(HUMIDIFIER_Fault==1)
 	{
-		Data.stAerkate.usFaultMode=31;//加湿器报警
+		HUMIDIFIER_OFF;
+		Data.stAerkate.usHumidity=0;
+		//如果无其他报警故障
+		if(Data.stAerkate.usFaultMode<10)
+		{
+			Data.stAerkate.usFaultMode=31;//加湿器报警断水
+		}
+	}
+	else
+	{
+		if(APP_Data.Set_CMD.Humidity_Flag==1)
+		{	
+			HUMIDIFIER_ON;
+			Data.stAerkate.usHumidity=1;
+			APP_Data.Task_sta.Humidity_sta=1;
+		}
+		else
+		{
+			HUMIDIFIER_OFF;
+			APP_Data.Task_sta.Humidity_sta=0;
+			Data.stAerkate.usHumidity=0;
+		}
 	}
 }
 static void Task_Drain_PUMP(void)
@@ -385,11 +398,11 @@ static void Task_Drain_PUMP(void)
 	if(APP_Data.Task_sta.Drain_PUMP_sta==1)
 	{
 		Drain_PUMP_NS_Count++;
-		if( Drain_PUMP_NS_Count>100)
+		if( Drain_PUMP_NS_Count>120) //120
 		{
 			Drain_PUMP_NS_Fault_Flag=1;
 		}
-		if( Drain_PUMP_NS_Count>360)
+		if( Drain_PUMP_NS_Count>180) //
 		{
 			Drain_PUMP_NS_Count=0;
 			Drain_PUMP_NS_Flag=1;
@@ -415,11 +428,7 @@ static void Task_Drain_PUMP(void)
 				if((DIN_TEMP&0x0800)==0)
 				{
 					Drain_PUMP_Fault=1;
-					//提升泵只在空调制冷状况下才工作
-					if((APP_Data.Set_CMD.ConditionMode==1)||(APP_Data.Set_CMD.ConditionMode==3))
-					{
-						APP_Data.System_Fault |= 0x01;
-					}
+					APP_Data.System_Fault |= 0x01;
 				}
 			}
 			//提升泵工作周期180S时间到，此时如果为报错的话，正常情况下浮球开关量已经断开
@@ -438,27 +447,55 @@ static void Task_Drain_PUMP(void)
 			APP_Data.System_Fault &= ~(0x01);
 			Drain_PUMP_Fault=0;
 		}
-			
 	}		
-	//if(APP_Data.Set_CMD.OpenSwitch==1)
+	
+	if(APP_Data.Set_CMD.Drain_Pump_Flag==1)
 	{
-		if(APP_Data.Set_CMD.Drain_Pump_Flag==1)
-		{
-			DRAIN_PUMP_ON;
-			APP_Data.Task_sta.Drain_PUMP_sta=1;
-		}
-		else
-		{
-			DRAIN_PUMP_OFF;
-			APP_Data.Task_sta.Drain_PUMP_sta=0;
-		}
-    }
+		DRAIN_PUMP_ON;
+		APP_Data.Task_sta.Drain_PUMP_sta=1;
+	}
+	else
+	{
+		DRAIN_PUMP_OFF;
+		APP_Data.Task_sta.Drain_PUMP_sta=0;
+	}
 	//如果无其他报警故障
-	if((Data.stAerkate.usFaultMode<10)&&(Drain_PUMP_Fault==1))
+	if(Drain_PUMP_Fault==1)
 	{
-		Data.stAerkate.usFaultMode=33;//系统提升泵故障
+		if(Data.stAerkate.usFaultMode<10)
+		{
+			Data.stAerkate.usFaultMode=33;//系统提升泵故障
+		}
+	}
+	else
+	{
+		if(Data.stAerkate.usFaultMode == 33)
+		{
+			Data.stAerkate.usFaultMode=0;
+		}
 	}
 }
+static void Task_XinFeng_Heat(void)
+{
+	if(APP_Data.Set_CMD.XinFeng_Heat_Flag==1)
+	{
+		ELECTRIC_HEAT1_ON;
+		ELECTRIC_HEAT2_ON;
+		ELECTRIC_HEAT3_ON;
+		APP_Data.Task_sta.XinFeng_Heat_sta=1;
+		Data.stAerkate.usElecHeating=1;
+	}
+	else
+	{
+		ELECTRIC_HEAT1_OFF;
+		ELECTRIC_HEAT2_OFF;
+		ELECTRIC_HEAT3_OFF;
+		APP_Data.Task_sta.XinFeng_Heat_sta=0;
+		Data.stAerkate.usElecHeating=0;
+	}
+
+}
+
 static void Task_Close(void)
 {
 	APP_Data.Set_CMD.Condition_OpenSwitch=0;//关闭空调，返回状态是无
@@ -468,13 +505,19 @@ static void Task_Close(void)
 	EXHAUST_AIR_OFF;
 	EXHAUST_AIR_NEG_OFF;
 	EXHAUST_AIR_POS_OFF;
-
+	ELECTRIC_HEAT1_OFF;
+	ELECTRIC_HEAT2_OFF;
+	ELECTRIC_HEAT3_OFF;
+	
 	APP_Data.Task_sta.XinFeng_sta=0;
 	Data.stAerkate.usXinFeng=0;
 	HUMIDIFIER_OFF;
 	DHUMIDIFIER_OFF;
 	APP_Data.Task_sta.Humidity_sta=0;
 	Data.stAerkate.usHumidity=0;
+	
+	APP_Data.Task_sta.XinFeng_Heat_sta=0;
+	Data.stAerkate.usElecHeating=0;
 }
 void APP_Init(void)
 {
@@ -490,7 +533,7 @@ void APP_Run(void)
 	if(APP_Data.Set_CMD.OpenSwitch==1)
 	{
 		Task_XinFeng();
-		Task_Humidity();
+		Task_XinFeng_Heat();
 	}
 	else
 	{

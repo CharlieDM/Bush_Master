@@ -17,6 +17,7 @@ typedef struct _TaskStruct
 void Func(){};
 
 static uint8 ucTaskPos = 0;	
+static uint32 ulInc = 0;
 static TaskStruct stTaskComps[Task_Num] = {{0,100,100,Func}};
 
 static void RegisterSystick(uint8 timer, void(*Func)())
@@ -63,6 +64,16 @@ static void TaskProcess(void)
 void SysTick_Handler(void)
 {
 	TaskUpdate();
+	if(ulInc)
+	{
+		ulInc--; 
+	}
+}
+
+void Delay_10ms(uint16_t nms)
+{
+	ulInc = nms;
+	while(ulInc);
 }
 
 void Hal_SystickInit(void)
@@ -70,6 +81,7 @@ void Hal_SystickInit(void)
 	SysTick_Config(SystemCoreClock / 100);
 	Device.Systick.Register = RegisterSystick;
 	Device.Systick.Run = TaskProcess;
+	Device.Systick.Delay = Delay_10ms;
 }
 
 
