@@ -6,7 +6,7 @@
 #include "hal_systick.h"
 #include "queue.h"
 #include "crc.h"
-
+#include "appdata.h"
 /* ----------------------- Static Func ------------------------------------------*/
 static void ModSlaveError(void);
 static void ModSlaveReceive(void);
@@ -91,7 +91,7 @@ static void ModSlaveReceive(void)
 	while( sg_tQueue.u8Cnt > 0 )
 	{
 		Queue_Pop(&sg_tQueue,&ucdata);		
-		if(ucdata != MOD_ADDRESS_SLAVE && ucpos == 0 ) continue; 	
+		if(ucdata != Data.stAerkate.usId && ucpos == 0 ) continue; 	
 	
 		if(ucpos < MOD_SLAVE_SIZE_MAX)
 		{
@@ -245,7 +245,7 @@ static void SlaveSend(void)
 * Function   : ModbusSlave Date&State Init
 ******************************************************************************/
 static void SlaveInit(void)
-{
+{   
 	SlaveFuncInit();
 	ModSlaveDispath(ModSlaveReceive);
 }

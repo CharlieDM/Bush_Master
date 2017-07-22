@@ -5,7 +5,7 @@
 #include "modfunc_slave.h"
 #include "appdata.h"
 #include "bittool.h"
-
+#include "io.h"
 static struct 
 {
 	void *pvAerkate;
@@ -17,6 +17,15 @@ static struct
 ******************************************************************************/
 void SlaveFuncInit(void)
 {
+	
+	uint16 ID_temp=0;
+
+	ID_temp = ReadIO() & 0x0F;
+	if((ID_temp>8)||(ID_temp==0))
+	{
+		ID_temp=1;
+	}
+	Data.stAerkate.usId= ID_temp;
 	SlaveData.pvAerkate = &Data.stAerkate;
 }
 
