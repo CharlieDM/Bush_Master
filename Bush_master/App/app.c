@@ -31,14 +31,28 @@ static void Task_Data_Process(void)
 	}
 	if(Data.stAerkate.usHotCoolMode==0x01)
 	{
+		if(APP_Data.Set_CMD.ConditionMode!=3)	
+		{
+			APP_Data.Set_CMD.State_Change=1;
+		}
+
 		APP_Data.Set_CMD.ConditionMode=3;//制冷	
+		
 	}
 	else  if(Data.stAerkate.usHotCoolMode==0x02)
 	{
+		if(APP_Data.Set_CMD.ConditionMode!=4)		
+		{
+			APP_Data.Set_CMD.State_Change=1;
+		}
 		APP_Data.Set_CMD.ConditionMode=4;//制热
 	}
 	else  if(Data.stAerkate.usHotCoolMode==0x00)
 	{
+		if(APP_Data.Set_CMD.ConditionMode!=5)			
+		{
+			APP_Data.Set_CMD.State_Change=1;
+		}
 		APP_Data.Set_CMD.ConditionMode=5;//通风
 	}	
 	if(Data.stAerkate.usFanSpeed==0x00)
@@ -73,7 +87,7 @@ static void Task_Data_Process(void)
 	}
 	if(Data.stAerkate.usHumidity==0x01)
 	{
-		//if(APP_Data.Set_CMD.ConditionMode==4)//如果是制热模式才能加湿
+		if(APP_Data.Set_CMD.ConditionMode==4)//如果是制热模式才能加湿
 		{
 			APP_Data.Set_CMD.Humidity_Flag=1;//加湿
 		}
@@ -97,9 +111,23 @@ static void Task_Air_Condition(void)
 	uint8  i = 0;
 	uint8  temp = 0;
 	uint8  temp1 = 0;
-	uint8  wbuf[26];
-
-	wbuf[0]  = 0xa5;	 
+	uint8  wbuf[26]; 
+	static uint8 count=0;
+	
+	wbuf[0]  = 0xa5;
+	if(APP_Data.Set_CMD.State_Change ==1)
+	{
+		count++;
+		if(count<1)
+		{
+			wbuf[0]  = 0x5a;
+		}
+		else
+		{
+			count=0;
+			APP_Data.Set_CMD.State_Change=0;
+		}
+	}	
 	wbuf[1]  = 0x48;
 	wbuf[2]  = 0x0e;
 	wbuf[3]  = 0;
@@ -129,20 +157,20 @@ static void Task_Air_Condition(void)
 	}
 	wbuf[5]  =temp; 
 	//模式设置
-	if((APP_Data.Set_CMD.ConditionMode == 1)||(APP_Data.Set_CMD.ConditionMode == 3))
+	if(APP_Data.Set_CMD.ConditionMode == 3)
 	{
 		//制冷模式
 		temp &=~0xe0;
 		temp |= 0x20;
 	}
-	else if((APP_Data.Set_CMD.ConditionMode == 2)||(APP_Data.Set_CMD.ConditionMode == 4))
+	else if(APP_Data.Set_CMD.ConditionMode == 4)
 	{
 		//制热模式
 		temp &=~0xe0;
 		temp |= 0x80;
 	}	
-	else if(((APP_Data.Set_CMD.ConditionMode==5)&&((APP_Data.Set_CMD.XinFeng_Flag==1)||(APP_Data.Set_CMD.JingHua_Flag==1)))||(APP_Data.Set_CMD.ConditionMode ==0))
-	{//即不制冷也不制热，且风速不为零，那么改为通风模式,或者是自动净化下的通风就是通风模式
+	else if(APP_Data.Set_CMD.ConditionMode==5)
+	{
 		//通风模式
 		temp &=~0xe0;
 		temp |= 0x60;
@@ -280,7 +308,10 @@ static void Task_Air_Condition(void)
 				temp1=temp1<<1;			
 			}
 		 }
-		 Data.stAerkate.usHotCoolMode=APP_Data.Condition_Back.Mode;
+		if (Data.stAerkate.usHotCoolMode==APP_Data.Condition_Back.Mode)
+		{
+			 Data.stAerkate.usHotCoolMode=APP_Data.Condition_Back.Mode;
+		}
 		 Data.stAerkate.usResTempture=APP_Data.Condition_Back.Temperature_T1;
 		 if(APP_Data.Condition_Back.Fault_Mode > 0)
 		 {
@@ -332,59 +363,71 @@ static void Task_XinFeng(void)
 static void Task_Humidity(void)
 {
 	static uint16 HUMIDIFIER_NS_Count=0;
+	static uint16 FILLWATER_NS_Count=0;
 	static uint8 HUMIDIFIER_Fault=0;
+	static uint8 FILLWATER_Sta=0;
 	uint16   DIN_TEMP=0;
 	DIN_TEMP=0;//临时值清零
 	DIN_TEMP=ReadIO();
-	if(APP_Data.Task_sta.Humidity_sta==1)
-	{
-		HUMIDIFIER_NS_Count++;
-		if(HUMIDIFIER_NS_Count>120)//加湿两分钟
-		{
-			APP_Data.Set_CMD.Humidity_Flag=0;
-			HUMIDIFIER_NS_Count = 0;
-		}
-	}
 	
-	if((DIN_TEMP&0x0400) == 0x0400)
-	{
-		HUMIDIFIER_Fault=1;
-		HUMIDIFIER_OFF;
-	}
-	else
-	{
-		HUMIDIFIER_Fault=0;
-		if(Data.stAerkate.usFaultMode == 31)
+	if(APP_Data.Set_CMD.Humidity_Flag==1)
+	{	
+		//无水状态
+		if(((DIN_TEMP&0x0400) == 0x0400) && (HUMIDIFIER_Fault == 0))
 		{
-			Data.stAerkate.usFaultMode=0;
+			if(FILLWATER_Sta == 0)//开始补水，开启电磁阀
+			{
+				FILL_WATER_ON;
+				FILLWATER_Sta = 1;
+			}
+			else if(FILLWATER_Sta == 1) //补水中，开始计时补水时间
+			{
+				FILLWATER_NS_Count++;
+				if(FILLWATER_NS_Count>600)//补水10分钟
+				{
+					FILL_WATER_OFF;
+					HUMIDIFIER_OFF;
+					HUMIDIFIER_Fault=1;
+					Data.stAerkate.usHumidity=0;
+					//如果无其他报警故障
+					if(Data.stAerkate.usFaultMode<10)
+					{
+						Data.stAerkate.usFaultMode=31;//补水报警断水
+					}
+				}
+			}
 		}
-	}
-	
-	if(HUMIDIFIER_Fault==1)
-	{
-		HUMIDIFIER_OFF;
-		Data.stAerkate.usHumidity=0;
-		//如果无其他报警故障
-		if(Data.stAerkate.usFaultMode<10)
+		else
 		{
-			Data.stAerkate.usFaultMode=31;//加湿器报警断水
-		}
-	}
-	else
-	{
-		if(APP_Data.Set_CMD.Humidity_Flag==1)
-		{	
+			FILLWATER_Sta = 2; // 设置水满状态
+			FILLWATER_NS_Count = 0;
+			HUMIDIFIER_Fault = 0;
+			FILL_WATER_OFF;
 			HUMIDIFIER_ON;
 			Data.stAerkate.usHumidity=1;
 			APP_Data.Task_sta.Humidity_sta=1;
 		}
-		else
+		
+		if(APP_Data.Task_sta.Humidity_sta==1)
 		{
-			HUMIDIFIER_OFF;
-			APP_Data.Task_sta.Humidity_sta=0;
-			Data.stAerkate.usHumidity=0;
+			HUMIDIFIER_NS_Count++;
+			if(HUMIDIFIER_NS_Count>120)//加湿两分钟
+			{
+				APP_Data.Set_CMD.Humidity_Flag=0;
+				APP_Data.Task_sta.Humidity_sta=0;
+				Data.stAerkate.usHumidity=0;
+				HUMIDIFIER_NS_Count = 0;
+				FILLWATER_Sta = 0;
+			}
 		}
 	}
+	else
+	{
+		FILL_WATER_OFF;
+		HUMIDIFIER_OFF;
+		HUMIDIFIER_NS_Count = 0;
+		FILLWATER_NS_Count = 0;
+	}	
 }
 static void Task_Drain_PUMP(void)
 {
@@ -402,7 +445,7 @@ static void Task_Drain_PUMP(void)
 		{
 			Drain_PUMP_NS_Fault_Flag=1;
 		}
-		if( Drain_PUMP_NS_Count>180) //
+		if( Drain_PUMP_NS_Count>240) //
 		{
 			Drain_PUMP_NS_Count=0;
 			Drain_PUMP_NS_Flag=1;
@@ -522,6 +565,7 @@ static void Task_Close(void)
 void APP_Init(void)
 {
 	//Parameter Init
+	APP_Data.Set_CMD.State_Change = 1;
 	APP_Data.System_Fault=0;
 	Device.Systick.Register(100,Task_Drain_PUMP);//水泵执行处理函数
 	Device.Systick.Register(100,Task_Humidity);//加湿器执行函数

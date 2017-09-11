@@ -20,6 +20,7 @@ typedef struct APP_data
 		uint8  JingHua_Flag;//净化标志位
 		uint8  Humidity_Flag;//加湿标志位=1加湿；=2除湿；=0无状态；
 		uint8  Drain_Pump_Flag;//排水泵标志位
+		uint8  State_Change;
 	}Set_CMD;      //操作指令	
 	struct 	Parameter0
 	{

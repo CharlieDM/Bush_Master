@@ -34,7 +34,7 @@
 #define GPIO_PORT_DOUT3    	GPIOC
 
 #define HUMIDIFIER	    	GPIO_Pin_6
-#define ELECTRIC_HEAT3	    GPIO_Pin_7
+#define FILL_WATER	        GPIO_Pin_7
 
 /* RCC GPIO IN */
 #define RCC_DIN_GROUP1	         	RCC_APB2Periph_GPIOC

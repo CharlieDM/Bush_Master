@@ -235,7 +235,7 @@ static void SlaveSend(void)
     	usCRC = usMBCRC16(stSlave.ucSendBuf,stSlave.ucsendlen-2);
         stSlave.ucSendBuf[stSlave.ucsendlen-2] = usCRC & 0xFF;
         stSlave.ucSendBuf[stSlave.ucsendlen-1] = usCRC>>8;
-		Device.Usart3.Send(stSlave.ucSendBuf, stSlave.ucsendlen);
+		Device.Usart5.Send(stSlave.ucSendBuf, stSlave.ucsendlen);
         stSlave.ucsendlen = 0;
     }	
 }
@@ -267,7 +267,7 @@ static void ModSlavePoll(void)
 void ModSlaveInit(void)
 {
 	SlaveInit();	
-	Device.Usart3.Register(Receive);
+	Device.Usart5.Register(Receive);
 	Device.Systick.Register(100,ModSalveTimeExpire);
 	Device.Systick.Register(10,ModSlavePoll);
 }

@@ -26,7 +26,7 @@ void Hal_GpioInit(void)
 
 	/* Three Group OUT */
 	RCC_APB2PeriphClockCmd(RCC_DOUT_GROUP3, ENABLE);
-	GPIO_InitStructure.GPIO_Pin   = HUMIDIFIER|ELECTRIC_HEAT3;
+	GPIO_InitStructure.GPIO_Pin   = HUMIDIFIER|FILL_WATER;
 	GPIO_Init(GPIO_PORT_DOUT3, &GPIO_InitStructure);
 
 	/* One Group In

@@ -35,6 +35,9 @@
 #define HUMIDIFIER_ON          	Device.Gpio.DoutOn(GPIO_PORT_DOUT3,HUMIDIFIER) 
 #define HUMIDIFIER_OFF         	Device.Gpio.DoutOff(GPIO_PORT_DOUT3,HUMIDIFIER) 
 
+#define FILL_WATER_ON          Device.Gpio.DoutOn(GPIO_PORT_DOUT3,FILL_WATER) //²¹Ë®
+#define FILL_WATER_OFF         Device.Gpio.DoutOff(GPIO_PORT_DOUT3,FILL_WATER) 
+
 #define FRESH_AIR_POS_ON       	Device.Gpio.DoutOn(GPIO_PORT_DOUT2,FRESH_AIR_POS) 
 #define FRESH_AIR_POS_OFF      	Device.Gpio.DoutOff(GPIO_PORT_DOUT2,FRESH_AIR_POS) 
 
@@ -52,6 +55,8 @@
 
 #define DHUMIDIFIER_ON          Device.Gpio.DoutOn(GPIO_PORT_DOUT2,RESERVED2) 
 #define DHUMIDIFIER_OFF         Device.Gpio.DoutOff(GPIO_PORT_DOUT2,RESERVED2) 
+
+
 
 /* ----------------------- Functions ---------------------------------*/
 uint16 ReadIO(void);
