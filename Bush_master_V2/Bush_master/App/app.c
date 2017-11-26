@@ -431,7 +431,7 @@ static void Task_Humidity(void)
 }
 static void Task_Drain_PUMP(void)
 {
-	static uint16 Last_Humidity = 2;//历史湿度记录，初始化的时候不能使改值位负数、
+	//static uint16 Last_Humidity = 2;//历史湿度记录，初始化的时候不能使改值位负数、
 	static uint8 Drain_PUMP_Fault=0;
 	static uint8 Drain_PUMP_NS_Fault_Flag=0;
 	static uint8 Drain_PUMP_NS_Flag=0;

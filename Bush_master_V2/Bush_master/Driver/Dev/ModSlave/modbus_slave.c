@@ -8,9 +8,9 @@
 #include "crc.h"
 #include "appdata.h"
 /* ----------------------- Static Func ------------------------------------------*/
-static void ModSlaveError(void);
 static void ModSlaveReceive(void);
 static void ModSlaveExec(void);
+static void SlaveSend(void);
 
 /* ----------------------- Static Var ------------------------------------------*/
 static xMODFuncHandler xFuncHandler[] =
@@ -23,8 +23,8 @@ static uint8 sg_au8Queue[MOD_SLAVE_SIZE_MAX] = {0};
 static T_QUEUE_INFO sg_tQueue={sg_au8Queue,0,0,0,MOD_SLAVE_SIZE_MAX};
 static uint8 ucRevBuf[MOD_SLAVE_SIZE_MAX] = {0};
 static uint8 ucSendBuf[MOD_SLAVE_SIZE_MAX] = {0};
+static uint8 ucRevLen = 0;
 static uint16 ucTimes = 0;
-static pFunc pfStateFunc = NULL;
 SlaveStruct stSlave =
 {
 	MOD_FRAME,
@@ -44,7 +44,10 @@ SlaveStruct stSlave =
 ******************************************************************************/
 static void Receive(uint8 data)
 {
-	Queue_Push(&sg_tQueue,data);
+	//Queue_Push(&sg_tQueue,data);
+	if(ucRevLen < MOD_SLAVE_SIZE_MAX)
+		ucRevBuf[ucRevLen++] = data;
+	ucTimes = 2;
 }
 
 /******************************************************************************
@@ -63,83 +66,95 @@ static void ModSalveTimeExpire(void)
 	}
 }
 
-static void ModSlaveDispath(pFunc func)
-{
-	ucTimes = 0;
-	stSlave.uctimeout = 0;
-	pfStateFunc = func;
-}
-
-
-static pFunc ModSlaveRun(void)
-{
-	return pfStateFunc;
-}
-
 /******************************************************************************
 * Name       : static void ModSlaveReceive(void)
 * Function   : ModbusSlave receive data deal and parser a Frame data
 ******************************************************************************/
 static void ModSlaveReceive(void)
 {
-	uint8 ucdata;
 	uint8 ucpos = 0;
 	uint8 uclen = 0;
 	
 	stSlave.ucmodstate = MOD_FRAME;
-	if(sg_tQueue.u8Cnt < MOD_SLAVE_SIZE_MIN) return;
-	while( sg_tQueue.u8Cnt > 0 )
+	if(!stSlave.uctimeout)	return;
+	//if(sg_tQueue.u8Cnt < MOD_SLAVE_SIZE_MIN) return;	
+	if(ucRevLen < MOD_SLAVE_SIZE_MIN) return;
+	//while( sg_tQueue.u8Cnt > 0 )
+	while(ucpos < ucRevLen)
 	{
-		Queue_Pop(&sg_tQueue,&ucdata);		
-		if(ucdata != Data.stAerkate.usId && ucpos == 0 ) continue; 	
-	
-		if(ucpos < MOD_SLAVE_SIZE_MAX)
+		if(ucRevBuf[ucpos++] != Data.stAerkate.usId && uclen == 0 ) continue; 
+		
+		switch(ucRevBuf[ucpos])
 		{
-			ucRevBuf[ucpos++] = ucdata;
+			case MOD_FUNC_READ_MULTIPLE_REGISTER:
+				uclen = 8;
+				break;
+			
+			case MOD_FUNC_WRITE_SINGLE_REGISTER:				
+				uclen = 8;
+				break;
+							
+			default:	
+				break;
 		}
-
-		if( ucpos == 2 )
+		
+		if(uclen >= MOD_SLAVE_SIZE_MIN && usMBCRC16(ucRevBuf+ucpos-1,uclen) == 0 )
 		{
-			switch(ucdata)
+			switch(ucRevBuf[ucpos])
 			{
 				case MOD_FUNC_READ_MULTIPLE_REGISTER:
-					uclen = 8;
+					eModSlaveReadRegister(ucRevBuf+ucpos-1,uclen);
 					break;
 				
 				case MOD_FUNC_WRITE_SINGLE_REGISTER:				
-					uclen = 8;
+					eModSlaveWriteSingleRegister(ucRevBuf+ucpos-1,uclen);
 					break;
-				
-				case MOD_FUNC_WRITE_MULTIPLE_REGISTERS:
-					Queue_Pop(&sg_tQueue,&ucdata);	
-					ucRevBuf[ucpos++] = ucdata;
-					Queue_Pop(&sg_tQueue,&ucdata);	
-					ucRevBuf[ucpos++] = ucdata;
-					Queue_Pop(&sg_tQueue,&ucdata);	
-					ucRevBuf[ucpos++] = ucdata;
-					Queue_Pop(&sg_tQueue,&ucdata);	
-					ucRevBuf[ucpos++] = ucdata;
-					uclen = ucRevBuf[4]*256+ucRevBuf[5];
-					break;
-				
+								
 				default:	
-					ucpos = 0;
 					break;
 			}
+			SlaveSend();
+			ucpos += uclen-1;
 		}
 		
-		if( uclen > 0 && ucpos > 0 && ucpos >= uclen ) break;
+		
+		//Queue_Pop(&sg_tQueue,&ucdata);		
+		//if(ucdata != Data.stAerkate.usId && ucpos == 0 ) continue; 	
+	
+//		if(ucpos < MOD_SLAVE_SIZE_MAX)
+//		{
+//			ucRevBuf[ucpos++] = ucdata;
+//		}
+				
+//		if( ucpos == 2 )
+//		{
+//			switch(ucdata)
+//			{
+//				case MOD_FUNC_READ_MULTIPLE_REGISTER:
+//					uclen = 8;
+//					break;
+//				
+//				case MOD_FUNC_WRITE_SINGLE_REGISTER:				
+//					uclen = 8;
+//					break;
+//								
+//				default:	
+//					ucpos = 0;
+//					break;
+//			}
+//		}
+//		
+//		if( uclen > 0 && ucpos > 0 && ucpos >= uclen ) 
+//		{
+//			if(uclen >= MOD_SLAVE_SIZE_MIN && usMBCRC16(ucRevBuf,uclen) == 0 )
+//			{
+//				stSlave.ucrevlen= uclen;
+//				ModSlaveExec();
+//			}
+//		}
 	}
-
-	if(uclen >= MOD_SLAVE_SIZE_MIN && usMBCRC16(ucRevBuf,uclen) == 0 )
-	{
-		stSlave.ucrevlen= uclen;
-		ModSlaveDispath(ModSlaveExec);
-	}
-	else
-	{
-		ModSlaveDispath(ModSlaveError);
-	}	
+	ucRevLen = 0;
+	stSlave.uctimeout = 0;
 }
 
 /******************************************************************************
@@ -150,17 +165,6 @@ static void ModSlaveExec(void)
 {
 	uint8 i =0;
 	uint8 ucFunctionCode = 0;
-	eMODException eException;	
-
-	if(ucTimes == 0)
-	{
-		ucTimes = stSlave.ustime;
-	}
-
-	if(stSlave.uctimeout)
-	{
-		ModSlaveDispath(ModSlaveError);
-	}
 
 	stSlave.ucmodstate = MOD_EXEC;
 	ucFunctionCode = ucRevBuf[MOD_FUNCTION_CODE];
@@ -168,60 +172,13 @@ static void ModSlaveExec(void)
 	{
 		if( xFuncHandler[i].ucFunctionCode == ucFunctionCode )
         {
-            eException = xFuncHandler[i].pxHandler( stSlave.ucrevbuf, stSlave.ucrevlen );
+            xFuncHandler[i].pxHandler( stSlave.ucrevbuf, stSlave.ucrevlen);
+			SlaveSend();
             break;
         }
 	}
-	
-	if(eException)
-	{
-		ModSlaveDispath(ModSlaveError);
-	}
-	else
-	{
-		ModSlaveDispath(ModSlaveReceive);
-	}
 }
 
-/******************************************************************************
-* Name       : static void ModSlaveError(void)
-* Function   : ModbusSlave Error Deal
-******************************************************************************/
-static void ModSlaveError(void)
-{
-	static uint8 ucerrortimes = 0;
-	switch( stSlave.ucmodcmd )
-	{
-		case MOD_FRAME:			
-			if(ucerrortimes >= 5)
-			{
-				stSlave.ucerror |= 0x01;
-				ucerrortimes = 0;
-			}
-			break;
-
-		case MOD_EXEC:			
-			if(ucerrortimes >= 5)
-			{
-				stSlave.ucerror |= 0x02;
-				ucerrortimes = 0;
-			}
-			
-			/* Fill the send data*/
-			stSlave.ucSendBuf[0] = MOD_ADDRESS_SLAVE;
-			stSlave.ucSendBuf[1] = 0x03;
-			stSlave.ucSendBuf[2] = 0xAA;
-			stSlave.ucSendBuf[3] = 0x55;
-			break;
-			
-		default:
-			break;
-	}
-	
-	/* Change the State */
-	ModSlaveDispath(ModSlaveReceive);
-	ucerrortimes++;	
-}
 
 /******************************************************************************
 * Name       : static void SlaveSend(void)
@@ -247,17 +204,15 @@ static void SlaveSend(void)
 static void SlaveInit(void)
 {   
 	SlaveFuncInit();
-	ModSlaveDispath(ModSlaveReceive);
 }
 
 /******************************************************************************
 * Name       : void ModSlavePoll(void)
 * Function   : ModbusSlave Poll
 ******************************************************************************/
-static void ModSlavePoll(void)
+void ModSlavePoll(void)
 {
-	(*ModSlaveRun())();
-	SlaveSend();
+	ModSlaveReceive();	
 }
 
 /******************************************************************************
@@ -268,7 +223,6 @@ void ModSlaveInit(void)
 {
 	SlaveInit();	
 	Device.Usart5.Register(Receive);
-	Device.Systick.Register(100,ModSalveTimeExpire);
-	Device.Systick.Register(10,ModSlavePoll);
+	Device.Systick.Register(5,ModSalveTimeExpire);
 }
 

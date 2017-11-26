@@ -8,7 +8,7 @@
 #define MOD_SLAVE_ADDRESS_MIN          	( 1 )    
 #define MOD_SLAVE_ADDRESS_MAX          	( 247 )  
 #define MOD_SLAVE_SIZE_MAX				( 250 )
-#define MOD_SLAVE_SIZE_MIN             	( 7 )
+#define MOD_SLAVE_SIZE_MIN             	( 8 )
 
 /* ----------------------- Typedefs ------------------------------------------*/
 typedef struct _Slave
@@ -29,5 +29,6 @@ typedef struct _Slave
 extern SlaveStruct stSlave;
 
 void ModSlaveInit(void);
+void ModSlavePoll(void);
 
 #endif

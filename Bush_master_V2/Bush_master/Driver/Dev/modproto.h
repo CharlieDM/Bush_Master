@@ -37,7 +37,7 @@ typedef enum
 typedef enum
 {
     MOD_INIT 	= 0x00,
-		MOD_SEND 	= 0x01,
+	MOD_SEND 	= 0x01,
     MOD_FRAME 	= 0x02,
     MOD_EXEC 	= 0x03,
     MOD_ERROR 	= 0x04,

@@ -1,0 +1,25 @@
+--cpu Cortex-M3
+".\output\main.o"
+".\output\app.o"
+".\output\stm32f10x_it.o"
+".\output\core_hal.o"
+".\output\core_os.o"
+".\output\core_cm3.o"
+".\output\system_stm32f10x.o"
+".\output\startup_stm32f10x_cl.o"
+"..\Cpu\STM32F10x_StdPeriph_Driver\src\STM32F105.lib"
+".\output\hal_uart5.o"
+".\output\hal_uart3.o"
+".\output\hal_spi.o"
+".\output\hal_systick.o"
+".\output\hal_gpio.o"
+".\output\modbus_slave.o"
+".\output\modfunc_slave.o"
+".\output\io.o"
+".\output\queue.o"
+".\output\crc.o"
+".\output\bittool.o"
+--strict --scatter ".\Output\Bush_Main_485_ID1_0910.sct"
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\Listen\Bush_Main_485_ID1_0910.map" -o .\Output\Bush_Main_485_ID1_0910.axf

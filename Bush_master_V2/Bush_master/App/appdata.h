@@ -38,7 +38,6 @@ typedef struct Sensor
 
 typedef struct Data
 {     	    
-	SensorStruct stSensor[5];
 	AerkateStruct stAerkate;
 }DataStruct;
 
